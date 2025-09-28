@@ -7,7 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 
 
 function App() {
-  const routes = [] = [
+  const routes = [
     {
       path: '/',
       element: <Home />
@@ -20,7 +20,7 @@ function App() {
 
   ]
   return (
-    <BrowserRouter basename={import.meta.env.PROD ? '/VNK' : '/'}>
+    <BrowserRouter>
       <AuthProvider>
         <div className="container max-w-[1200px] mx-auto px-[5px]">
           <Routes>
