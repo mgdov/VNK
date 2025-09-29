@@ -1,12 +1,14 @@
 import './assets/App.css'
 import Home from './pages/Home/index'
 import AdminApp from './pages/Admin/AdminApp';
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter, useLocation } from "react-router-dom";
 import Footer from './components/Footer/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 
 
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.toLowerCase().startsWith('/admin');
   const routes = [
     {
       path: '/',
@@ -29,7 +31,7 @@ function App() {
             }
           </Routes>
         </div>
-        <Footer />
+        {!isAdminRoute && <Footer />}
       </AuthProvider>
     </BrowserRouter>
   )
