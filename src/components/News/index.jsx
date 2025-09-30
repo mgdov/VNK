@@ -126,12 +126,23 @@ export default function NewsBlock() {
                                         // Try different possible image sources
                                         const possibleImageUrl = imageUrl || item.avatar?.src || item.avatar;
 
-                                        return possibleImageUrl && !imageErrors.has(item.id) ? (
+                                        // Check if it's a valid image URL or blob
+                                        const isValidImage = possibleImageUrl && (
+                                            typeof possibleImageUrl === 'string' && (
+                                                possibleImageUrl.startsWith('http') ||
+                                                possibleImageUrl.startsWith('blob:') ||
+                                                possibleImageUrl.startsWith('data:') ||
+                                                /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl)
+                                            )
+                                        );
+
+                                        return isValidImage && !imageErrors.has(item.id) ? (
                                             <img
                                                 src={possibleImageUrl}
                                                 alt={item.title}
                                                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                                                 onError={() => handleImageError(item.id)}
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
@@ -218,12 +229,23 @@ export default function NewsBlock() {
                                         const imageUrl = getImageUrl(selectedNews.avatar);
                                         const possibleImageUrl = imageUrl || selectedNews.avatar?.src || selectedNews.avatar;
 
-                                        return possibleImageUrl && !imageErrors.has(selectedNews.id) ? (
+                                        // Check if it's a valid image URL or blob
+                                        const isValidImage = possibleImageUrl && (
+                                            typeof possibleImageUrl === 'string' && (
+                                                possibleImageUrl.startsWith('http') ||
+                                                possibleImageUrl.startsWith('blob:') ||
+                                                possibleImageUrl.startsWith('data:') ||
+                                                /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl)
+                                            )
+                                        );
+
+                                        return isValidImage && !imageErrors.has(selectedNews.id) ? (
                                             <img
                                                 src={possibleImageUrl}
                                                 alt={selectedNews.title}
                                                 className="w-full h-full object-cover"
                                                 onError={() => handleImageError(selectedNews.id)}
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className="h-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
