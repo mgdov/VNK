@@ -31,7 +31,7 @@ function Footer() {
     };
 
     return (
-        <footer className="bg-gray-900 text-gray-100 w-full">
+        <footer className="bg-gray-900 mt-[30px] text-gray-100 w-full">
             <div className="mt-[80px] max-w-[1200px] mx-auto px-6 py-12 lg:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Блок логотипа + описание */}
