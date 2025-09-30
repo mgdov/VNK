@@ -7,6 +7,7 @@ import Cafe from "../../assets/Content-carousel/cafe.png";
 import Zapravka from "../../assets/Content-carousel/zapravka.png";
 import BigZapravka from "../../assets/Content-carousel/bigzapravka.png";
 import VezdZapravka from "../../assets/Content-carousel/vezdzapravka.png";
+import VNK from "../../assets/Content-carousel/vnk.png"
 
 const slides = [
     { img: Fura, title: "Грузовые заправки", desc: "Удобно и быстро для дальнобойщиков" },
@@ -14,6 +15,7 @@ const slides = [
     { img: Zapravka, title: "Современное оборудование", desc: "Высокое качество топлива" },
     { img: BigZapravka, title: "Крупная АЗС", desc: "Всегда есть место для вашего авто" },
     { img: Cafe, title: "Уютное кафе", desc: "Горячий кофе и свежие блюда" },
+    { img: VNK, title: "Отличный от других дизайн", desc: "В темное время суток вы отличите нас от других" }
 ];
 
 const CarouselComp = () => (
