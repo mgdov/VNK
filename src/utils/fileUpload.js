@@ -1,69 +1,113 @@
-// Утилита для загрузки файлов на сервер
-const UPLOAD_URL = "http://localhost:3001/upload";
+// File upload utilities
+const UPLOAD_URL = "http://localhost:3001/upload"
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
 
-// Функция для загрузки файла на сервер
+// Validate file before upload
+const validateFile = (file) => {
+    if (!file) {
+        throw new Error('Файл не выбран')
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`Размер файла превышает ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        throw new Error('Неподдерживаемый тип файла. Разрешены: JPEG, PNG, GIF, WebP, SVG')
+    }
+
+    return true
+}
+
+// Upload file to server
 export const uploadFile = async (file) => {
     try {
-        // Создаем FormData для загрузки файла
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'image'); // Указываем тип файла
+        validateFile(file)
 
-        // Отправляем файл на сервер
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('type', 'image')
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
+
         const response = await fetch(UPLOAD_URL, {
             method: 'POST',
             body: formData,
-        });
+            signal: controller.signal
+        })
+
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
-            throw new Error(`Ошибка загрузки файла: ${response.status}`);
+            throw new Error(`Ошибка загрузки файла: ${response.status} ${response.statusText}`)
         }
 
-        const result = await response.json();
+        const result = await response.json()
 
-        // Возвращаем URL загруженного файла
         return {
             src: result.url || result.fileUrl || result.path,
             title: file.name,
             rawFile: file
-        };
+        }
     } catch (error) {
-        console.error('Ошибка загрузки файла:', error);
-        throw error;
+        if (error.name === 'AbortError') {
+            throw new Error('Превышено время ожидания загрузки файла')
+        }
+        console.error('Ошибка загрузки файла:', error)
+        throw error
     }
-};
+}
 
-// Функция для обработки изображений в данных формы
+// Process image data in form
 export const processImageData = async (data) => {
-    const processedData = { ...data };
+    const processedData = { ...data }
 
-    // Обрабатываем поле avatar (изображение поста)
-    if (data.avatar && data.avatar.rawFile) {
+    if (data.avatar?.rawFile) {
         try {
-            const uploadedImage = await uploadFile(data.avatar.rawFile);
-            processedData.avatar = uploadedImage;
+            const uploadedImage = await uploadFile(data.avatar.rawFile)
+            processedData.avatar = uploadedImage
         } catch (error) {
-            console.error('Ошибка загрузки изображения поста:', error);
-            // Оставляем оригинальные данные в случае ошибки
+            console.error('Ошибка загрузки изображения поста:', error)
+            // Keep original data on error
         }
     }
 
-    return processedData;
-};
+    return processedData
+}
 
-// Функция для получения URL изображения
+// Get image URL from various data formats
 export const getImageUrl = (imageData) => {
-    if (!imageData) return null;
+    if (!imageData) return null
 
-    // Если это строка (URL)
+    // String URL
     if (typeof imageData === 'string') {
-        return imageData;
+        return imageData
     }
 
-    // Если это объект с src
-    if (imageData.src) {
-        return imageData.src;
+    // Object with src property
+    if (imageData?.src) {
+        return imageData.src
     }
 
-    return null;
-};
+    // Blob URL
+    if (imageData instanceof Blob) {
+        return URL.createObjectURL(imageData)
+    }
+
+    return null
+}
+
+// Create blob URL for file preview
+export const createBlobUrl = (file) => {
+    if (!file) return null
+    return URL.createObjectURL(file)
+}
+
+// Revoke blob URL to free memory
+export const revokeBlobUrl = (url) => {
+    if (url && url.startsWith('blob:')) {
+        URL.revokeObjectURL(url)
+    }
+}

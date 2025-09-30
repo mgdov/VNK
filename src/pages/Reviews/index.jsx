@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react'
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { Plus, Minus } from 'lucide-react'
 
 function Review() {
@@ -13,7 +13,15 @@ function Review() {
     ]), []);
 
     const [activeId, setActiveId] = useState(locations[0].id);
-    const active = locations.find(l => l.id === activeId) || locations[0];
+
+    const active = useMemo(
+        () => locations.find(l => l.id === activeId) || locations[0],
+        [locations, activeId]
+    );
+
+    const handleLocationChange = useCallback((id) => {
+        setActiveId(id);
+    }, []);
 
     return (
         <div className='HomeWrapper'>
@@ -26,7 +34,7 @@ function Review() {
                     {locations.map(loc => (
                         <button
                             key={loc.id}
-                            onClick={() => setActiveId(loc.id)}
+                            onClick={() => handleLocationChange(loc.id)}
                             className={`${activeId === loc.id ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'} px-3 md:px-4 py-2 rounded-md text-sm md:text-base transition-colors duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300`}
                         >
                             {loc.title}
@@ -125,29 +133,35 @@ function Review() {
 
 function Accordion({ items }) {
     const [openIndex, setOpenIndex] = useState(null);
+
+    const handleToggle = useCallback((index) => {
+        setOpenIndex(prev => prev === index ? null : index);
+    }, []);
+
     return (
         <div className="mt-4 divide-y divide-gray-100">
             {items.map((item, index) => (
                 <AccordionItem
-                    key={index}
+                    key={`faq-${index}`}
                     index={index}
                     question={item.q}
                     answer={item.a}
                     opened={openIndex === index}
-                    onToggle={() => setOpenIndex(openIndex === index ? null : index)}
+                    onToggle={handleToggle}
                 />
             ))}
         </div>
     );
 }
 
-function AccordionItem({ index, question, answer, opened, onToggle }) {
+const AccordionItem = React.memo(({ index, question, answer, opened, onToggle }) => {
     const contentRef = useRef(null);
     const [maxHeight, setMaxHeight] = useState(0);
 
     useEffect(() => {
         const el = contentRef.current;
         if (!el) return;
+
         if (opened) {
             setMaxHeight(el.scrollHeight);
         } else {
@@ -155,23 +169,32 @@ function AccordionItem({ index, question, answer, opened, onToggle }) {
         }
     }, [opened]);
 
+    const handleClick = useCallback(() => {
+        onToggle(index);
+    }, [onToggle, index]);
+
     return (
         <div className="py-2">
             <button
-                className="w-full flex items-center justify-between text-left py-3 focus:outline-none"
-                onClick={onToggle}
+                className="w-full flex items-center justify-between text-left py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+                onClick={handleClick}
                 aria-expanded={opened}
                 aria-controls={`acc-panel-${index}`}
             >
-                <span className="text-sm md:text-base font-medium text-gray-900">{question}</span>
-                <span className={`ml-4 inline-flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-200 ${opened ? 'bg-gray-900 text-white' : 'bg-white text-gray-700'}`}>
+                <span className="text-sm md:text-base font-medium text-gray-900 pr-4">
+                    {question}
+                </span>
+                <span className={`ml-4 inline-flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-200 flex-shrink-0 ${opened ? 'bg-gray-900 text-white' : 'bg-white text-gray-700'}`}>
                     {opened ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </span>
             </button>
             <div
                 id={`acc-panel-${index}`}
                 ref={contentRef}
-                style={{ maxHeight, transition: 'max-height 220ms ease, opacity 220ms ease, transform 220ms ease' }}
+                style={{
+                    maxHeight,
+                    transition: 'max-height 220ms ease, opacity 220ms ease, transform 220ms ease'
+                }}
                 className={`overflow-hidden ${opened ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}
             >
                 <div className="pt-1 pb-3 pr-10 text-sm text-gray-600">
@@ -180,6 +203,6 @@ function AccordionItem({ index, question, answer, opened, onToggle }) {
             </div>
         </div>
     );
-}
+});
 
 export default Review

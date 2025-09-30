@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { motion } from 'framer-motion';
-import { Lock, User, Eye, EyeOff } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { motion } from 'framer-motion'
+import { Lock, User, Eye, EyeOff } from 'lucide-react'
 
 const LoginPage = () => {
     const { login, isLoading } = useAuth();
@@ -13,35 +13,44 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
+    const handleInputChange = useCallback((e) => {
+        const { name, value } = e.target
         setFormData(prev => ({
             ...prev,
             [name]: value
-        }));
-        // Очищаем ошибку при изменении полей
-        if (error) setError('');
-    };
+        }))
+        // Clear error when user starts typing
+        if (error) setError('')
+    }, [error])
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError('');
+    const handleSubmit = useCallback(async (e) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+        setError('')
 
         try {
-            const result = await login(formData.username, formData.password);
+            const result = await login(formData.username, formData.password)
 
             if (result.success) {
-                // Перенаправление произойдет автоматически через AuthProvider
+                // Redirect will happen automatically through AuthProvider
             } else {
-                setError(result.message);
+                setError(result.message)
             }
         } catch (error) {
-            setError('Произошла ошибка при входе в систему');
+            setError('Произошла ошибка при входе в систему')
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }, [login, formData.username, formData.password])
+
+    const togglePasswordVisibility = useCallback(() => {
+        setShowPassword(prev => !prev)
+    }, [])
+
+    const isFormDisabled = useMemo(() =>
+        isSubmitting || isLoading,
+        [isSubmitting, isLoading]
+    )
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center p-4">
@@ -84,7 +93,7 @@ const LoginPage = () => {
                                 onChange={handleInputChange}
                                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#667eea] focus:border-transparent transition-all duration-200"
                                 placeholder="Введите логин"
-                                disabled={isSubmitting}
+                                disabled={isFormDisabled}
                             />
                         </div>
                     </div>
@@ -107,13 +116,13 @@ const LoginPage = () => {
                                 onChange={handleInputChange}
                                 className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#667eea] focus:border-transparent transition-all duration-200"
                                 placeholder="Введите пароль"
-                                disabled={isSubmitting}
+                                disabled={isFormDisabled}
                             />
                             <button
                                 type="button"
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                onClick={() => setShowPassword(!showPassword)}
-                                disabled={isSubmitting}
+                                onClick={togglePasswordVisibility}
+                                disabled={isFormDisabled}
                             >
                                 {showPassword ? (
                                     <EyeOff className="h-5 w-5 text-[#7f8c8d] hover:text-[#1E1E1E] transition-colors" />
@@ -138,7 +147,7 @@ const LoginPage = () => {
                     {/* Кнопка входа */}
                     <button
                         type="submit"
-                        disabled={isSubmitting || isLoading}
+                        disabled={isFormDisabled}
                         className="w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white py-3 px-4 rounded-xl font-600 text-sm hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                         {isSubmitting ? (
