@@ -4,6 +4,8 @@ import AdminApp from './pages/Admin/AdminApp';
 import { Routes, Route, BrowserRouter, useLocation } from "react-router-dom";
 import Footer from './components/Footer/Footer';
 import { AuthProvider } from './contexts/AuthContext';
+import Review from './pages/Reviews';
+import Header from './components/Header';
 
 
 function AppContent() {
@@ -15,6 +17,10 @@ function AppContent() {
       element: <Home />
     },
     {
+      path: '/Review',
+      element: <Review />
+    },
+    {
 
       path: '/Admin/*',
       element: <AdminApp />
@@ -22,8 +28,9 @@ function AppContent() {
 
   ]
   return (
-    <>
-      <div className="container max-w-[1200px] mx-auto px-[5px]">
+    <div className="min-h-screen flex flex-col">
+      <div className="container max-w-[1200px] mx-auto px-[5px] flex-1 w-full">
+        {!isAdminRoute && <Header />}
         <Routes>
           {
             routes.map((obj) => <Route key={obj.path} path={obj.path} element={obj.element} />)
@@ -31,7 +38,7 @@ function AppContent() {
         </Routes>
       </div>
       {!isAdminRoute && <Footer />}
-    </>
+    </div>
   )
 }
 

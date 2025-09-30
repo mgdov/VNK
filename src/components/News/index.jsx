@@ -33,6 +33,13 @@ export default function NewsBlock() {
         fetchNews();
     }, []);
 
+    // Cleanup effect to restore scroll when component unmounts
+    useEffect(() => {
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', {
@@ -54,11 +61,15 @@ export default function NewsBlock() {
     const openNewsPopup = (newsItem) => {
         setSelectedNews(newsItem);
         setIsPopupOpen(true);
+        // Prevent body scroll when popup is open
+        document.body.style.overflow = 'hidden';
     };
 
     const closeNewsPopup = () => {
         setSelectedNews(null);
         setIsPopupOpen(false);
+        // Restore body scroll when popup is closed
+        document.body.style.overflow = 'unset';
     };
 
     if (loading) {
@@ -95,10 +106,10 @@ export default function NewsBlock() {
 
             {news.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-[#7f8c8d] text-lg">Новостей пока нет</p>
+                    <p className="text-[#7f8c8d] ">Новостей пока нет</p>
                 </div>
             ) : (
-                <div className="max-w-[1200px] mx-auto p-4">
+                <div className="max-w-[1200px] mx-auto ">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {news.map((item, index) => (
                             <motion.article
@@ -112,9 +123,12 @@ export default function NewsBlock() {
                                 <div className="relative h-48 overflow-hidden">
                                     {(() => {
                                         const imageUrl = getImageUrl(item.avatar);
-                                        return imageUrl && !imageErrors.has(item.id) ? (
+                                        // Try different possible image sources
+                                        const possibleImageUrl = imageUrl || item.avatar?.src || item.avatar;
+
+                                        return possibleImageUrl && !imageErrors.has(item.id) ? (
                                             <img
-                                                src={imageUrl}
+                                                src={possibleImageUrl}
                                                 alt={item.title}
                                                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                                                 onError={() => handleImageError(item.id)}
@@ -168,76 +182,84 @@ export default function NewsBlock() {
             <AnimatePresence>
                 {isPopupOpen && selectedNews && (
                     <motion.div
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={closeNewsPopup}
                     >
                         <motion.div
-                            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-3xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-100"
+                            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Заголовок попапа */}
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                                <h2 className="text-2xl font-bold text-[#1E1E1E]">Новость</h2>
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <h2 className="text-2xl font-bold text-[#1E1E1E]">Новость</h2>
+                                </div>
                                 <button
                                     onClick={closeNewsPopup}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors group"
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 group"
                                 >
-                                    <X size={24} className="text-[#1E1E1E] group-hover:text-[#333333]" />
+                                    <X size={24} className="text-[#1E1E1E] group-hover:text-[#333333] group-hover:rotate-90 transition-transform" />
                                 </button>
                             </div>
 
                             {/* Контент попапа */}
-                            <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                            <div className="flex flex-col h-[calc(95vh-120px)]">
                                 {/* Изображение */}
-                                {(() => {
-                                    const imageUrl = getImageUrl(selectedNews.avatar);
-                                    return imageUrl && !imageErrors.has(selectedNews.id) ? (
-                                        <div className="relative h-64 md:h-80 overflow-hidden">
+                                <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100">
+                                    {(() => {
+                                        const imageUrl = getImageUrl(selectedNews.avatar);
+                                        const possibleImageUrl = imageUrl || selectedNews.avatar?.src || selectedNews.avatar;
+
+                                        return possibleImageUrl && !imageErrors.has(selectedNews.id) ? (
                                             <img
-                                                src={imageUrl}
+                                                src={possibleImageUrl}
                                                 alt={selectedNews.title}
                                                 className="w-full h-full object-cover"
                                                 onError={() => handleImageError(selectedNews.id)}
                                             />
-                                        </div>
-                                    ) : (
-                                        <div className="h-64 md:h-80 bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
-                                            <span className="text-white text-6xl font-bold">
-                                                {selectedNews.name ? selectedNews.name.charAt(0).toUpperCase() : 'N'}
-                                            </span>
-                                        </div>
-                                    );
-                                })()}
+                                        ) : (
+                                            <div className="h-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
+                                                <span className="text-white text-6xl font-bold">
+                                                    {selectedNews.name ? selectedNews.name.charAt(0).toUpperCase() : 'N'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
 
                                 {/* Информация о новости */}
-                                <div className="p-6">
-                                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                                            <span className="text-[#7f8c8d] text-sm font-500">
-                                                {formatDate(selectedNews.createdAt)}
-                                            </span>
-                                            {selectedNews.name && (
-                                                <span className="text-[#7f8c8d] text-sm font-500">
-                                                    Автор: {selectedNews.name}
+                                <div className="flex-1 overflow-y-auto">
+                                    <div className="p-6 md:p-8">
+                                        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+                                                    {formatDate(selectedNews.createdAt)}
                                                 </span>
-                                            )}
+                                                {selectedNews.name && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
+                                                        👤 {selectedNews.name}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <h1 className="text-3xl font-bold text-[#1E1E1E] mb-4">
-                                        {selectedNews.title}
-                                    </h1>
+                                        <h1 className="text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-6 leading-tight">
+                                            {selectedNews.title}
+                                        </h1>
 
-                                    <div className="prose prose-lg max-w-none">
-                                        <p className="text-[#5a6c7d] leading-relaxed whitespace-pre-wrap">
-                                            {selectedNews.content}
-                                        </p>
+                                        <div className="prose prose-lg max-w-none">
+                                            <div className="text-[#5a6c7d] leading-relaxed whitespace-pre-wrap text-base md:text-lg break-words overflow-wrap-anywhere">
+                                                {selectedNews.content}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
