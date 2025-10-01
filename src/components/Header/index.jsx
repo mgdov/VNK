@@ -37,15 +37,15 @@ function Header() {
         </div>
 
         <nav className="hidden md:block">
-          <ul className="flex gap-[30px] text-[16px] font-600 text-[#1E1E1E]">
+            <ul className="flex gap-[30px] text-[16px] font-600 text-[#1E1E1E]">
             <li>
-              <Link to='/' className="hover:text-blue-600 transition-colors duration-200">Главная</Link>
+              <Link to='/' className="hover:text-gray-700 transition-colors duration-200">Главная</Link>
             </li>
             <li>
-              <a href="/" className="hover:text-blue-600 transition-colors duration-200">О нас</a>
+              <a href="/" className="hover:text-gray-700 transition-colors duration-200">О нас</a>
             </li>
             <li>
-              <Link to='/review' className="hover:text-blue-600 transition-colors duration-200">Отзывы</Link>
+              <Link to='/review' className="hover:text-gray-700 transition-colors duration-200">Отзывы</Link>
             </li>
           </ul>
         </nav>
@@ -92,7 +92,7 @@ function Header() {
               <Link
                 to='/'
                 onClick={closeMenu}
-                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
               >
                 🏠 Главная
               </Link>
@@ -101,7 +101,7 @@ function Header() {
               <a
                 href="/"
                 onClick={closeMenu}
-                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
               >
                 ℹ️ О нас
               </a>
@@ -110,7 +110,7 @@ function Header() {
               <Link
                 to='/review'
                 onClick={closeMenu}
-                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
               >
                 ⭐ Отзывы
               </Link>

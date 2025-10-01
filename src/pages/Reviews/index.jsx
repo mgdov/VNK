@@ -82,41 +82,41 @@ function Review() {
             {/* Thematic content */}
             <div className="mt-10 md:mt-14 grid grid-cols-1 gap-6">
                 {/* Rating summary */}
-                <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+                <div className="rounded-xl border border-gray-200 bg-white shadow-lg p-5 md:p-6 hover:shadow-xl transition-shadow duration-300">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <h4 className="text-lg font-semibold">Рейтинг сети VNK</h4>
-                            <p className="mt-1 text-sm text-gray-500">Средняя оценка по Яндекс.Картам за последние 12 месяцев</p>
-                        </div>
+                            <div>
+                                <h4 className="text-xl md:text-2xl font-semibold">🏆 Рейтинг сети VNK</h4>
+                                <p className="mt-1 text-sm md:text-base text-gray-500">Средняя оценка по Яндекс.Картам за последние 12 месяцев</p>
+                            </div>
                         <div className="flex items-center gap-3">
                             <div className="text-2xl font-bold">4.8</div>
                             <div className="flex items-center text-yellow-500" aria-label="Рейтинг 4.8 из 5">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span className="text-gray-300">★</span>
                             </div>
-                            <div className="text-sm text-gray-500">1 200+ отзывов</div>
+                            <div className="text-sm text-gray-500">1 200+ отзывов</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Why choose section */}
-                <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
-                    <h4 className="text-lg font-semibold">Почему выбирают VNK</h4>
+                <div className="rounded-xl border border-gray-200 bg-white shadow-lg p-5 md:p-6 hover:shadow-xl transition-shadow duration-300">
+                    <h4 className="text-xl md:text-2xl font-semibold">✨ Почему выбирают VNK</h4>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="rounded-lg border border-gray-100 p-4">
-                            <div className="text-sm font-medium">Качество топлива</div>
-                            <p className="mt-1 text-sm text-gray-500">Сертификация и регулярные проверки качества.</p>
+                        <div className="rounded-lg border border-gray-100 p-4 hover:shadow-md transition-shadow duration-200">
+                            <div className="text-sm md:text-base font-medium">⛽ Качество топлива</div>
+                            <p className="mt-1 text-sm md:text-base text-gray-500">Сертификация и регулярные проверки качества.</p>
                         </div>
-                        <div className="rounded-lg border border-gray-100 p-4">
-                            <div className="text-sm font-medium">Сервис 24/7</div>
-                            <p className="mt-1 text-sm text-gray-500">Удобный график и оперативное обслуживание.</p>
+                        <div className="rounded-lg border border-gray-100 p-4 hover:shadow-md transition-shadow duration-200">
+                            <div className="text-sm md:text-base font-medium">⏰ Сервис 24/7</div>
+                            <p className="mt-1 text-sm md:text-base text-gray-500">Удобный график и оперативное обслуживание.</p>
                         </div>
-                        <div className="rounded-lg border border-gray-100 p-4">
-                            <div className="text-sm font-medium">Честные цены</div>
-                            <p className="mt-1 text-sm text-gray-500">Прозрачная стоимость без скрытых наценок.</p>
+                        <div className="rounded-lg border border-gray-100 p-4 hover:shadow-md transition-shadow duration-200">
+                            <div className="text-sm md:text-base font-medium">💲 Честные цены</div>
+                            <p className="mt-1 text-sm md:text-base text-gray-500">Прозрачная стоимость без скрытых наценок.</p>
                         </div>
-                        <div className="rounded-lg border border-gray-100 p-4">
-                            <div className="text-sm font-medium">Инфраструктура</div>
-                            <p className="mt-1 text-sm text-gray-500">Кофе-зона, магазин и удобные парковки.</p>
+                        <div className="rounded-lg border border-gray-100 p-4 hover:shadow-md transition-shadow duration-200">
+                            <div className="text-sm md:text-base font-medium">🅿️ Инфраструктура</div>
+                            <p className="mt-1 text-sm md:text-base text-gray-500">Кофе-зона, магазин и удобные парковки.</p>
                         </div>
                     </div>
                 </div>
@@ -124,8 +124,8 @@ function Review() {
 
 
                 {/* FAQ Accordion */}
-                <div className="rounded-xl border border-gray-200 bg-white shadow-sm mb-[40px] p-5 md:p-6">
-                    <h4 className="text-lg font-semibold">Частые вопросы</h4>
+                <div className="rounded-xl border border-gray-200 bg-white shadow-lg mb-[40px] p-5 md:p-6 hover:shadow-xl transition-shadow duration-300">
+                    <h4 className="text-xl md:text-2xl font-semibold">❓ Частые вопросы</h4>
                     <Accordion
                         items={[
                             {
@@ -192,13 +192,13 @@ const AccordionItem = React.memo(({ index, question, answer, opened, onToggle })
 
     return (
         <div className="py-2">
-            <button
-                className="w-full flex items-center justify-between text-left py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+                <button
+                className="w-full flex items-center justify-between text-left py-3 focus:outline-none focus:ring-0 rounded-lg"
                 onClick={handleClick}
                 aria-expanded={opened}
                 aria-controls={`acc-panel-${index}`}
             >
-                <span className="text-sm md:text-base font-medium text-gray-900 pr-4">
+                <span className="text-base md:text-lg font-semibold text-gray-900 pr-4">
                     {question}
                 </span>
                 <span className={`ml-4 inline-flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-200 flex-shrink-0 ${opened ? 'bg-gray-900 text-white' : 'bg-white text-gray-700'}`}>
@@ -214,7 +214,7 @@ const AccordionItem = React.memo(({ index, question, answer, opened, onToggle })
                 }}
                 className={`overflow-hidden ${opened ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}
             >
-                <div className="pt-1 pb-3 pr-10 text-sm text-gray-600">
+                <div className="pt-3 pb-4 pr-10 text-sm md:text-base text-gray-600">
                     {answer}
                 </div>
             </div>

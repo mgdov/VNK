@@ -64,14 +64,51 @@ export const uploadFile = async (file) => {
 export const processImageData = async (data) => {
     const processedData = { ...data }
 
-    if (data.avatar?.rawFile) {
-        try {
+    // Support different ImageInput shapes used by react-admin:
+    // - avatar: { rawFile, ... }
+    // - avatar: [ { rawFile, ... } ]
+    try {
+        if (Array.isArray(data.avatar) && data.avatar.length > 0 && data.avatar[0]?.rawFile) {
+            const uploadedImage = await uploadFile(data.avatar[0].rawFile)
+            processedData.avatar = uploadedImage
+        } else if (data.avatar?.rawFile) {
             const uploadedImage = await uploadFile(data.avatar.rawFile)
             processedData.avatar = uploadedImage
-        } catch (error) {
-            console.error('Ошибка загрузки изображения поста:', error)
-            // Keep original data on error
         }
+    } catch (error) {
+        console.error('Ошибка загрузки изображения поста:', error)
+        // Keep original data on error
+    }
+
+    // If upload failed (or upload server unavailable) but we have a rawFile,
+    // create a base64 data URL fallback so the frontend can display the image.
+    const toDataUrl = (file) => new Promise((resolve, reject) => {
+        try {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        } catch (e) {
+            reject(e);
+        }
+    });
+
+    try {
+        if (!processedData.avatar || (processedData.avatar && !processedData.avatar.src)) {
+            // handle array form
+            const raw = Array.isArray(data.avatar) && data.avatar.length > 0 ? data.avatar[0]?.rawFile : data.avatar?.rawFile;
+            if (raw) {
+                try {
+                    const dataUrl = await toDataUrl(raw);
+                    processedData.avatar = processedData.avatar && processedData.avatar.title ? { src: dataUrl, title: processedData.avatar.title } : { src: dataUrl, title: raw.name || 'image' };
+                } catch (e) {
+                    // ignore
+                    console.warn('Не удалось создать data URL из файла:', e);
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('Fallback image processing failed:', e);
     }
 
     return processedData

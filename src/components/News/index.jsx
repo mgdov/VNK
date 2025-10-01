@@ -124,11 +124,34 @@ export default function NewsBlock() {
                                 >
                                     {/* Изображение */}
                                     <div className="relative h-48 overflow-hidden group">
-                                        <img
-                                            src={item.imageUrl || '/placeholder.png'}
-                                            alt={item.title}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
+                                        {(() => {
+                                            const imageUrl = getImageUrl(item.avatar);
+                                            const possibleImageUrl = imageUrl || item.imageUrl || item.avatar?.src || item.avatar;
+                                            const isValidImage =
+                                                possibleImageUrl &&
+                                                typeof possibleImageUrl === "string" &&
+                                                (possibleImageUrl.startsWith("http") ||
+                                                    possibleImageUrl.startsWith("blob:") ||
+                                                    possibleImageUrl.startsWith("data:") ||
+                                                    /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl));
+
+                                            return isValidImage && !imageErrors.has(item.id) ? (
+                                                <img
+                                                    src={possibleImageUrl}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    onError={() => handleImageError(item.id)}
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center">
+                                                    <span className="text-white text-4xl font-bold">
+                                                        {item.name ? item.name.charAt(0).toUpperCase() : "N"}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })()}
+
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-white/80 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                                                 📅 {formatDate(item.createdAt)}
