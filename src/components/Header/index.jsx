@@ -124,7 +124,7 @@ function Header() {
             </div>
           </div>
         </div>
-      </nav>
+        </nav>
     </header>
   );
 }

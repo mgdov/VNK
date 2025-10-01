@@ -3,6 +3,8 @@ import React, { Suspense, lazy } from 'react'
 // Lazy load components for better performance
 const CarouselComp = lazy(() => import('../../components/Carousel'))
 const NewsBlock = lazy(() => import('../../components/News'))
+const PricesWidget = lazy(() => import('../../components/Prices'))
+
 
 // Loading component
 const LoadingSpinner = () => (
@@ -17,8 +19,12 @@ function Home() {
             <Suspense fallback={<LoadingSpinner />}>
                 <CarouselComp />
             </Suspense>
+
             <Suspense fallback={<LoadingSpinner />}>
                 <NewsBlock />
+            </Suspense>
+            <Suspense fallback={<LoadingSpinner />}>
+                <PricesWidget />
             </Suspense>
         </div>
     )

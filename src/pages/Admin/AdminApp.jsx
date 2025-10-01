@@ -14,13 +14,18 @@ import {
 } from '@mui/material';
 import {
     Menu as MenuIcon,
-    Home as HomeIcon,
+    Article as ArticleIcon,
+    LocalGasStation as LocalGasStationIcon,
     Logout as LogoutIcon
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import mockApiProvider from "./dataProvider";
 import NewsList from './NewsLists'
 import NewsCreate from "./NewCreate";
 import NewsEdit from "./NewEdit";
+import PricesList from './PricesList'
+import PricesCreate from './PricesCreate'
+import PricesEdit from './PricesEdit'
 import { useAuth } from '../../contexts/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
@@ -111,7 +116,7 @@ const CustomMenu = () => {
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
-                        <HomeIcon sx={{ color: 'white', fontSize: 20 }} />
+                        <ArticleIcon sx={{ color: 'white', fontSize: 20 }} />
                     </Box>
                     {open && (
                         <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
@@ -121,6 +126,15 @@ const CustomMenu = () => {
                 </Box>
             </Box>
 
+            {/* Навигация */}
+            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
+                <IconButton component={Link} to="/admin/items" color="primary" aria-label="Новости">
+                    <ArticleIcon />
+                </IconButton>
+                <IconButton component={Link} to="/admin/price" color="primary" aria-label="Цены">
+                    <LocalGasStationIcon />
+                </IconButton>
+            </Box>
         </Box>
     );
 };
@@ -189,6 +203,13 @@ export default function AdminPage() {
                         create={NewsCreate}
                         edit={NewsEdit}
                         options={{ label: 'Новости' }}
+                    />
+                    <Resource
+                        name="price"
+                        list={PricesList}
+                        create={PricesCreate}
+                        edit={PricesEdit}
+                        options={{ label: 'Цены на топливо' }}
                     />
                 </Admin>
             </div>

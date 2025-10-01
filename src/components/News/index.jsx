@@ -95,100 +95,77 @@ export default function NewsBlock() {
 
     return (
         <div className="mt-[40px]">
-            <motion.div
-                className="text-left"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-            >
-                <h2 className="text-4xl font-bold mb-12">Новости</h2>
-            </motion.div>
+            <div className="mt-[40px]">
+                <motion.div
+                    className="text-left"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <h2 className="text-4xl font-bold mb-12 flex items-center gap-2">
+                        Новости
+                    </h2>
+                </motion.div>
 
-            {news.length === 0 ? (
-                <div className="text-center py-12">
-                    <p className="text-[#7f8c8d] ">Новостей пока нет</p>
-                </div>
-            ) : (
-                <div className="max-w-[1200px] mx-auto ">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {news.map((item, index) => (
-                            <motion.article
-                                key={item.id}
-                                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 flex flex-col"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: index * 0.1 }}
-                            >
-                                {/* Изображение */}
-                                <div className="relative h-48 overflow-hidden">
-                                    {(() => {
-                                        const imageUrl = getImageUrl(item.avatar);
-                                        // Try different possible image sources
-                                        const possibleImageUrl = imageUrl || item.avatar?.src || item.avatar;
-
-                                        // Check if it's a valid image URL or blob
-                                        const isValidImage = possibleImageUrl && (
-                                            typeof possibleImageUrl === 'string' && (
-                                                possibleImageUrl.startsWith('http') ||
-                                                possibleImageUrl.startsWith('blob:') ||
-                                                possibleImageUrl.startsWith('data:') ||
-                                                /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl)
-                                            )
-                                        );
-
-                                        return isValidImage && !imageErrors.has(item.id) ? (
-                                            <img
-                                                src={possibleImageUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                                                onError={() => handleImageError(item.id)}
-                                                loading="lazy"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
-                                                <span className="text-white text-4xl font-bold">
-                                                    {item.name ? item.name.charAt(0).toUpperCase() : 'N'}
-                                                </span>
-                                            </div>
-                                        );
-                                    })()}
-                                    <div className="absolute top-4 left-4">
-                                        <span className="bg-white/90 backdrop-blur-sm text-[#1E1E1E] px-3 py-1 rounded-full text-sm font-600">
-                                            {formatDate(item.createdAt)}
-                                        </span>
+                {news.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-gray-400">Новостей пока нет</p>
+                    </div>
+                ) : (
+                    <div className="max-w-[1200px] mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {news.map((item, index) => (
+                                <motion.article
+                                    key={item.id}
+                                    className="bg-gradient-to-br from-white to-gray-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 flex flex-col"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                >
+                                    {/* Изображение */}
+                                    <div className="relative h-48 overflow-hidden group">
+                                        <img
+                                            src={item.imageUrl || '/placeholder.png'}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                        <div className="absolute top-4 left-4">
+                                            <span className="bg-white/80 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                                                📅 {formatDate(item.createdAt)}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Контент */}
-                                <div className="p-6 flex flex-col flex-1">
-                                    <div className="mb-3">
+                                    {/* Контент */}
+                                    <div className="p-6 flex flex-col flex-1">
                                         {item.name && (
-                                            <span className="text-[#7f8c8d] text-sm font-500">
-                                                Автор: {item.name}
+                                            <span className="text-gray-500 text-sm font-medium flex items-center gap-1 mb-2">
+                                                👤 Автор: {item.name}
                                             </span>
                                         )}
+
+                                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                                            {item.title}
+                                        </h3>
+
+                                        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
+                                            {truncateContent(item.content)}
+                                        </p>
+
+                                        <button
+                                            onClick={() => openNewsPopup(item)}
+                                            className="mt-auto w-full bg-gray-900 text-white py-3 px-4 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-all duration-300 border border-gray-900 hover:border-gray-800 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform hover:scale-105"
+                                        >
+                                            ✍️ Читать далее
+                                        </button>
                                     </div>
-
-                                    <h3 className="text-xl font-bold text-[#1E1E1E] mb-3 line-clamp-2">
-                                        {item.title}
-                                    </h3>
-
-                                    <p className="text-[#5a6c7d] text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
-                                        {truncateContent(item.content)}
-                                    </p>
-
-                                    <button
-                                        onClick={() => openNewsPopup(item)}
-                                        className="mt-auto w-full bg-[#1E1E1E] text-white py-3 px-4 rounded-xl font-600 text-sm hover:bg-[#333333] transition-all duration-300 border border-[#1E1E1E] hover:border-[#333333] shadow-lg hover:shadow-xl"
-                                    >
-                                        Читать далее
-                                    </button>
-                                </div>
-                            </motion.article>
-                        ))}
+                                </motion.article>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
+
 
             <AnimatePresence>
                 {isPopupOpen && selectedNews && (
@@ -197,47 +174,43 @@ export default function NewsBlock() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={closeNewsPopup}
+                        onClick={closeNewsPopup} // Закрытие по клику на фон
                     >
                         <motion.div
-                            className="bg-white rounded-3xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-100"
+                            className="bg-white rounded-2xl w-full max-w-3xl md:max-w-5xl max-h-[95vh] overflow-hidden shadow-lg border border-gray-100 flex flex-col"
                             initial={{ scale: 0.8, opacity: 0, y: 50 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.8, opacity: 0, y: 50 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()} // Чтобы клик по контенту не закрывал
                         >
                             {/* Заголовок попапа */}
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                                    <h2 className="text-2xl font-bold text-[#1E1E1E]">Новость</h2>
-                                </div>
+                            <div className="flex items-center justify-between p-4 md:p-5 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-indigo-100">
+                                <h2 className="text-lg md:text-2xl font-bold text-gray-900 flex items-center gap-2 md:gap-3 truncate">
+                                    📰 {selectedNews.title}
+                                </h2>
                                 <button
                                     onClick={closeNewsPopup}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 group"
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
                                 >
-                                    <X size={24} className="text-[#1E1E1E] group-hover:text-[#333333] group-hover:rotate-90 transition-transform" />
+                                    <X size={20} className="md:text-gray-900 text-gray-700 hover:text-gray-900" />
                                 </button>
                             </div>
 
                             {/* Контент попапа */}
-                            <div className="flex flex-col h-[calc(95vh-120px)]">
+                            <div className="flex flex-col md:flex-row h-[calc(95vh-64px)] overflow-hidden">
                                 {/* Изображение */}
-                                <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100">
+                                <div className="w-full md:w-1/2 h-48 md:h-full relative overflow-hidden bg-gray-100">
                                     {(() => {
                                         const imageUrl = getImageUrl(selectedNews.avatar);
                                         const possibleImageUrl = imageUrl || selectedNews.avatar?.src || selectedNews.avatar;
-
-                                        // Check if it's a valid image URL or blob
-                                        const isValidImage = possibleImageUrl && (
-                                            typeof possibleImageUrl === 'string' && (
-                                                possibleImageUrl.startsWith('http') ||
-                                                possibleImageUrl.startsWith('blob:') ||
-                                                possibleImageUrl.startsWith('data:') ||
-                                                /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl)
-                                            )
-                                        );
+                                        const isValidImage =
+                                            possibleImageUrl &&
+                                            typeof possibleImageUrl === "string" &&
+                                            (possibleImageUrl.startsWith("http") ||
+                                                possibleImageUrl.startsWith("blob:") ||
+                                                possibleImageUrl.startsWith("data:") ||
+                                                /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(possibleImageUrl));
 
                                         return isValidImage && !imageErrors.has(selectedNews.id) ? (
                                             <img
@@ -248,47 +221,39 @@ export default function NewsBlock() {
                                                 loading="lazy"
                                             />
                                         ) : (
-                                            <div className="h-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
-                                                <span className="text-white text-6xl font-bold">
-                                                    {selectedNews.name ? selectedNews.name.charAt(0).toUpperCase() : 'N'}
+                                            <div className="h-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center">
+                                                <span className="text-white text-5xl md:text-6xl font-bold">
+                                                    {selectedNews.name ? selectedNews.name.charAt(0).toUpperCase() : "N"}
                                                 </span>
                                             </div>
                                         );
                                     })()}
                                 </div>
 
-                                {/* Информация о новости */}
-                                <div className="flex-1 overflow-y-auto">
-                                    <div className="p-6 md:p-8">
-                                        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
-                                                    {formatDate(selectedNews.createdAt)}
-                                                </span>
-                                                {selectedNews.name && (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
-                                                        👤 {selectedNews.name}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <h1 className="text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-6 leading-tight">
-                                            {selectedNews.title}
-                                        </h1>
-
-                                        <div className="prose prose-lg max-w-none">
-                                            <div className="text-[#5a6c7d] leading-relaxed whitespace-pre-wrap text-base md:text-lg break-words overflow-wrap-anywhere">
-                                                {selectedNews.content}
-                                            </div>
-                                        </div>
+                                {/* Текстовая часть */}
+                                <div className="w-full md:w-1/2 flex flex-col p-4 md:p-6 overflow-y-auto">
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs md:text-sm font-medium">
+                                            📅 {formatDate(selectedNews.createdAt)}
+                                        </span>
+                                        {selectedNews.name && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs md:text-sm font-medium">
+                                                👤 {selectedNews.name}
+                                            </span>
+                                        )}
                                     </div>
+
+                                    <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-4 flex-1 whitespace-pre-wrap">
+                                        {selectedNews.content}
+                                    </p>
                                 </div>
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+
         </div>
     );
 }

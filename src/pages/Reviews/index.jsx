@@ -25,42 +25,59 @@ function Review() {
 
     return (
         <div className='HomeWrapper'>
-            <div className="mt-10 pb-6 md:pt-12">
-                <h2 className="text-3xl md:text-4xl font-bold">Отзывы</h2>
+            <div className="mt-12 pb-10 md:pt-16">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
+                    ⭐ Отзывы клиентов
+                </h2>
             </div>
 
+            {/* Переключатель АЗС */}
             <div className="w-full overflow-x-auto">
-                <div className="inline-flex gap-2 md:gap-3 border border-gray-200 rounded-lg p-1 bg-white">
-                    {locations.map(loc => (
+                <div className="inline-flex gap-2 md:gap-3 border border-gray-200 rounded-xl p-1.5 bg-gray-50 shadow-inner">
+                    {locations.map((loc) => (
                         <button
                             key={loc.id}
                             onClick={() => handleLocationChange(loc.id)}
-                            className={`${activeId === loc.id ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'} px-3 md:px-4 py-2 rounded-md text-sm md:text-base transition-colors duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300`}
+                            className={`
+          px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1
+          ${activeId === loc.id
+                                    ? "bg-gray-900 text-white shadow-md"
+                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                }
+        `}
                         >
-                            {loc.title}
+                            ⛽ {loc.title}
                         </button>
                     ))}
                 </div>
             </div>
 
-            <div className="mt-6 md:mt-8">
-                <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
-                    <div className="flex items-center justify-between gap-4">
+            {/* Карточка активной АЗС */}
+            <div className="mt-8 md:mt-10">
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-lg p-6 md:p-8 hover:shadow-xl transition-shadow duration-300">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div>
-                            <h3 className="text-lg md:text-xl font-semibold">{active.title}</h3>
-                            <p className="mt-1 text-sm text-gray-500">Откройте страницу на Яндекс.Картах, чтобы посмотреть отзывы.</p>
+                            <h3 className="text-xl md:text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                                {active.title}
+                            </h3>
+                            <p className="mt-2 text-sm md:text-base text-gray-500">
+                                📍 Откройте страницу на Яндекс.Картах, чтобы посмотреть отзывы клиентов
+                                и оставить свой
+                            </p>
                         </div>
+
                         <a
                             href={active.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center rounded-lg bg-black text-white px-4 py-2 text-sm md:text-base hover:opacity-90 transition-opacity"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gray-900 to-gray-700 text-white px-5 py-2.5 text-sm md:text-base font-medium shadow hover:shadow-lg transition-all duration-200"
                         >
-                            Оставить отзыв
+                            ✍️ Оставить отзыв
                         </a>
                     </div>
                 </div>
             </div>
+
 
             {/* Thematic content */}
             <div className="mt-10 md:mt-14 grid grid-cols-1 gap-6">

@@ -152,15 +152,20 @@ const dataProvider = {
 
     create: async (resource, params) => {
         try {
-            validateData(params.data, ['title', 'content']);
+            let payload = params.data || {};
 
-            // Обрабатываем изображения перед отправкой
-            const processedData = await processImageData(params.data);
+            if (resource === 'items') {
+                // Валидация полей новостей
+                validateData(payload, ['title', 'content']);
+                // Обрабатываем изображения только для новостей
+                const processedData = await processImageData(payload);
+                payload = processedData;
+            }
 
             // Добавляем временные метки
             const dataWithTimestamps = {
-                ...processedData,
-                createdAt: processedData.createdAt || new Date().toISOString(),
+                ...payload,
+                createdAt: payload.createdAt || new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
 
@@ -182,17 +187,21 @@ const dataProvider = {
                 throw new Error('ID записи не указан');
             }
 
-            // Валидация только обязательных полей
-            if (!params.data.title || !params.data.content) {
-                throw new Error('Заголовок и содержание обязательны');
+            let updateData = { ...(params.data || {}) };
+
+            if (resource === 'items') {
+                // Валидация только для новостей
+                if (!updateData.title || !updateData.content) {
+                    throw new Error('Заголовок и содержание обязательны');
+                }
+                // Обрабатываем изображения только для новостей
+                const processedData = await processImageData(updateData);
+                updateData = processedData;
             }
 
-            // Обрабатываем изображения перед отправкой
-            const processedData = await processImageData(params.data);
-
             // Подготавливаем данные для обновления
-            const updateData = {
-                ...processedData,
+            updateData = {
+                ...updateData,
                 updatedAt: new Date().toISOString()
             };
 
