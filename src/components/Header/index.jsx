@@ -98,13 +98,13 @@ function Header() {
               </Link>
             </li>
             <li>
-              <a
-                href="/"
+              <Link to='/about'
+
                 onClick={closeMenu}
                 className="block px-4 py-3 text-lg font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
               >
                 ℹ️ О нас
-              </a>
+              </Link>
             </li>
             <li>
               <Link
