@@ -97,14 +97,12 @@ export default function NewsBlock() {
         <div className="mt-[40px]">
             <div className="mt-[40px]">
                 <motion.div
-                    className="text-left"
+                    className="text-left max-w-[1200px] mx-auto px-4 sm:px-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-4xl font-bold mb-12 flex items-center gap-2">
-                        Новости
-                    </h2>
+                    <h2 className="text-2xl font-semibold mb-8 flex items-center gap-2">Новости</h2>
                 </motion.div>
 
                 {news.length === 0 ? (
@@ -112,7 +110,7 @@ export default function NewsBlock() {
                         <p className="text-gray-400">Новостей пока нет</p>
                     </div>
                 ) : (
-                    <div className="max-w-[1200px] mx-auto">
+                    <div className="max-w-[1200px] mx-auto px-4 sm:px-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {news.map((item, index) => (
                                 <motion.article
@@ -162,18 +160,12 @@ export default function NewsBlock() {
                                     {/* Контент */}
                                     <div className="p-6 flex flex-col flex-1">
                                         {item.name && (
-                                            <span className="text-gray-500 text-sm font-medium flex items-center gap-1 mb-2">
-                                                👤 Автор: {item.name}
-                                            </span>
+                                            <span className="site-subheading mb-2 flex items-center gap-1">👤 Автор: {item.name}</span>
                                         )}
 
-                                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
-                                            {item.title}
-                                        </h3>
+                                        <h3 className="text-lg font-semibold mb-3 line-clamp-2">{item.title}</h3>
 
-                                        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
-                                            {truncateContent(item.content)}
-                                        </p>
+                                        <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3 flex-1">{truncateContent(item.content)}</p>
 
                                         <button
                                             onClick={() => openNewsPopup(item)}
@@ -193,37 +185,33 @@ export default function NewsBlock() {
             <AnimatePresence>
                 {isPopupOpen && selectedNews && (
                     <motion.div
-                        className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={closeNewsPopup} // Закрытие по клику на фон
+                        onClick={closeNewsPopup}
                     >
                         <motion.div
-                            className="bg-white rounded-2xl w-full max-w-3xl md:max-w-5xl max-h-[95vh] overflow-hidden shadow-lg border border-gray-100 flex flex-col"
-                            initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            onClick={(e) => e.stopPropagation()} // Чтобы клик по контенту не закрывал
+                            className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl relative"
+                            initial={{ y: 30, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 30, opacity: 0 }}
+                            transition={{ duration: 0.28 }}
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Заголовок попапа */}
-                            <div className="flex items-center justify-between p-4 md:p-5 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-indigo-100">
-                                <h2 className="text-lg md:text-2xl font-bold text-gray-900 flex items-center gap-2 md:gap-3 truncate">
-                                    📰 {selectedNews.title}
-                                </h2>
-                                <button
-                                    onClick={closeNewsPopup}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
-                                >
-                                    <X size={20} className="md:text-gray-900 text-gray-700 hover:text-gray-900" />
-                                </button>
-                            </div>
+                            {/* Close button (top-right) */}
+                            <button
+                                onClick={closeNewsPopup}
+                                aria-label="Close"
+                                className="absolute top-4 right-4 z-50 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:scale-105 transition"
+                            >
+                                <X size={20} className="text-gray-700" />
+                            </button>
 
-                            {/* Контент попапа */}
-                            <div className="flex flex-col md:flex-row h-[calc(95vh-64px)] overflow-hidden">
-                                {/* Изображение */}
-                                <div className="w-full md:w-1/2 h-48 md:h-full relative overflow-hidden bg-gray-100">
+                            {/* Hero-style modal: big image on top, content below */}
+                            <div className="w-full">
+                                {/* Image hero (reduced height) */}
+                                <div className="w-full h-[40vh] md:h-[48vh] bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-2xl">
                                     {(() => {
                                         const imageUrl = getImageUrl(selectedNews.avatar);
                                         const possibleImageUrl = imageUrl || selectedNews.avatar?.src || selectedNews.avatar;
@@ -244,31 +232,34 @@ export default function NewsBlock() {
                                                 loading="lazy"
                                             />
                                         ) : (
-                                            <div className="h-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center">
-                                                <span className="text-white text-5xl md:text-6xl font-bold">
+                                            <div className="h-full w-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center">
+                                                <span className="text-white text-6xl font-bold">
                                                     {selectedNews.name ? selectedNews.name.charAt(0).toUpperCase() : "N"}
                                                 </span>
                                             </div>
                                         );
                                     })()}
-                                </div>
 
-                                {/* Текстовая часть */}
-                                <div className="w-full md:w-1/2 flex flex-col p-4 md:p-6 overflow-y-auto">
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs md:text-sm font-medium">
+                                    <div className="absolute top-4 left-4">
+                                        <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">
                                             📅 {formatDate(selectedNews.createdAt)}
                                         </span>
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-6 md:p-8 bg-white max-h-[40vh] md:max-h-[30vh] overflow-y-auto">
+                                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{selectedNews.title}</h3>
+
+                                    <div className="flex flex-wrap gap-2 mb-4">
                                         {selectedNews.name && (
-                                            <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs md:text-sm font-medium">
-                                                👤 {selectedNews.name}
-                                            </span>
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">👤 {selectedNews.name}</span>
                                         )}
                                     </div>
 
-                                    <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-4 flex-1 whitespace-pre-wrap">
-                                        {selectedNews.content}
-                                    </p>
+                                    <div className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{selectedNews.content}</div>
+
+                                    {/* bottom close removed; use top X or overlay to close */}
                                 </div>
                             </div>
                         </motion.div>

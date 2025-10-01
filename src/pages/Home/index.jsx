@@ -4,7 +4,7 @@ import React, { Suspense, lazy } from 'react'
 const CarouselComp = lazy(() => import('../../components/Carousel'))
 const NewsBlock = lazy(() => import('../../components/News'))
 const PricesWidget = lazy(() => import('../../components/Prices'))
-const ReviewsTop = lazy(() => import('../../components/ReviewsTop'))
+const ReviewsTop = lazy(() => import('../../components/ReviewWidget'))
 
 
 // Loading component

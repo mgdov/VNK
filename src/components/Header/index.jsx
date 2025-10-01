@@ -30,22 +30,22 @@ function Header() {
 
   return (
     <header className="w-full bg-white relative">
-      <div className="mx-auto mt-[25px] flex max-w-[1300px] items-center justify-between pt-4">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-[25px] flex items-center justify-between pt-4">
 
         <div className="Header-logo">
           <Link to='/'><img className="w-[91px] h-[31px]" src={HeaderLogo} alt="Логотип" /></Link>
         </div>
 
         <nav className="hidden md:block">
-            <ul className="flex gap-[30px] text-[16px] font-600 text-[#1E1E1E]">
+          <ul className="flex gap-[30px] text-[16px] font-medium text-[#1E1E1E]">
             <li>
-              <Link to='/' className="hover:text-gray-700 transition-colors duration-200">Главная</Link>
+              <Link to='/' className="hover:text-gray-700 transition-colors duration-200 font-medium text-[16px]">Главная</Link>
             </li>
             <li>
-              <a href="/" className="hover:text-gray-700 transition-colors duration-200">О нас</a>
+              <Link to='/about' className="hover:text-gray-700 transition-colors duration-200 text-[16px]">О нас</Link>
             </li>
             <li>
-              <Link to='/review' className="hover:text-gray-700 transition-colors duration-200">Отзывы</Link>
+              <Link to='/review' className="hover:text-gray-700 transition-colors duration-200 font-medium text-[16px]">Отзывы</Link>
             </li>
           </ul>
         </nav>
@@ -124,7 +124,7 @@ function Header() {
             </div>
           </div>
         </div>
-        </nav>
+      </nav>
     </header>
   );
 }

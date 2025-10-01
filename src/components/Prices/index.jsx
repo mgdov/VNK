@@ -62,8 +62,8 @@ export default function PricesWidget() {
     ]), [])
 
     return (
-        <div className="max-w-[1200px] mx-auto mt-12">
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-12">
+            <div className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
                 {/* Заголовок */}
                 <div className="px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border-b border-gray-100">
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">

@@ -96,7 +96,7 @@ const CarouselComp = () => {
     const slides = useMemo(() => SLIDES, [])
 
     return (
-        <div className="max-w-[1200px] mx-auto mt-6 relative">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-6 relative">
             <Carousel
                 {...CAROUSEL_SETTINGS}
                 className="rounded-2xl overflow-hidden"

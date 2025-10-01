@@ -18,8 +18,11 @@ const LoadingSpinner = () => (
 )
 
 // Route configuration
+const About = lazy(() => import('./pages/About'))
+
 const ROUTES = [
   { path: '/', element: <Home /> },
+  { path: '/about', element: <About /> },
   { path: '/review', element: <Review /> },
   { path: '/admin/*', element: <AdminApp /> }
 ]

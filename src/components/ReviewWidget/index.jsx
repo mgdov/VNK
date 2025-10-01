@@ -23,8 +23,8 @@ export default function ReviewsTop() {
     }, []);
 
     return (
-        <div className="mt-12 pb-10 md:pt-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">⭐ Отзывы клиентов</h2>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-4 my-10">
+            <h2 className="text-2xl font-semibold">⭐ Отзывы клиентов</h2>
 
             <div className="mt-6 w-full overflow-x-auto">
                 <div className="inline-flex gap-2 md:gap-3 border border-gray-200 rounded-xl p-1.5 bg-gray-50 shadow-inner mt-4">
@@ -41,7 +41,7 @@ export default function ReviewsTop() {
             </div>
 
             <div className="mt-8 md:mt-10">
-                <div className="rounded-2xl border border-gray-200 bg-white shadow-lg p-6 md:p-8 hover:shadow-xl transition-shadow duration-300">
+                <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div>
                             <h3 className="text-xl md:text-2xl font-semibold text-gray-900 flex items-center gap-2">{active.title}</h3>

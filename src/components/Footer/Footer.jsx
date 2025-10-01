@@ -32,14 +32,14 @@ function Footer() {
 
     return (
         <footer className="bg-gray-900 mt-[30px] text-gray-100 w-full">
-            <div className="mt-[80px] max-w-[1200px] mx-auto px-6 py-12 lg:py-16">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-[80px] py-12 lg:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Блок логотипа + описание */}
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
                             <img src={HeaderLogo} alt="Логотип" className="w-[90px] h-auto" />
                             <div>
-                                <h3 className="text-xl font-semibold">АЗС «Твой Бензин»</h3>
+                                <h3 className="text-lg font-semibold">АЗС «Твой Бензин»</h3>
                                 <p className="text-sm text-gray-300">Качество топлива • Уютное кафе • 24/7</p>
                             </div>
                         </div>
