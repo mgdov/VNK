@@ -4,6 +4,7 @@ import React, { Suspense, lazy } from 'react'
 const CarouselComp = lazy(() => import('../../components/Carousel'))
 const NewsBlock = lazy(() => import('../../components/News'))
 const PricesWidget = lazy(() => import('../../components/Prices'))
+const ReviewsTop = lazy(() => import('../../components/ReviewsTop'))
 
 
 // Loading component
@@ -25,6 +26,9 @@ function Home() {
             </Suspense>
             <Suspense fallback={<LoadingSpinner />}>
                 <PricesWidget />
+            </Suspense>
+            <Suspense fallback={<LoadingSpinner />}>
+                <ReviewsTop />
             </Suspense>
         </div>
     )
