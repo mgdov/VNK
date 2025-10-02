@@ -121,7 +121,7 @@ export default function NewsBlock() {
                                     transition={{ duration: 0.6, delay: index * 0.1 }}
                                 >
                                     {/* Изображение */}
-                                    <div className="relative h-48 overflow-hidden group">
+                                    <div className="relative h-[220px] sm:h-48 overflow-hidden group">
                                         {(() => {
                                             const imageUrl = getImageUrl(item.avatar);
                                             const possibleImageUrl = imageUrl || item.imageUrl || item.avatar?.src || item.avatar;

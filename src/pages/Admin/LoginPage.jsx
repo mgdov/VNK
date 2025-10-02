@@ -161,14 +161,7 @@ const LoginPage = () => {
                     </button>
                 </form>
 
-                {/* Подсказка */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                    <p className="text-sm text-[#7f8c8d] text-center">
-                        <strong>Тестовые данные:</strong><br />
-                        Логин: <code className="bg-white px-2 py-1 rounded">admin</code><br />
-                        Пароль: <code className="bg-white px-2 py-1 rounded">admin123</code>
-                    </p>
-                </div>
+
             </motion.div>
         </div>
     );
