@@ -66,7 +66,7 @@ export default function PricesWidget() {
             <div className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
                 {/* Заголовок */}
                 <div className="px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border-b border-gray-100">
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
                         ⛽ Актуальные цены на топливо
                     </h3>
                     {prices?.updatedAt && (
@@ -77,13 +77,13 @@ export default function PricesWidget() {
                 </div>
 
                 {/* Контент */}
-                <div className="px-6 py-8">
+                <div className="px-4 py-6 sm:px-6 sm:py-8">
                     {loading ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6">
                             {Array.from({ length: 6 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="h-28 rounded-2xl bg-gray-100 animate-pulse"
+                                    className="h-24 sm:h-28 rounded-2xl bg-gray-100 animate-pulse"
                                 />
                             ))}
                         </div>
@@ -92,11 +92,11 @@ export default function PricesWidget() {
                     ) : !prices ? (
                         <div className="text-gray-500 text-sm">Цены пока не добавлены</div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6">
                             {items.map((it, idx) => (
                                 <div
                                     key={it.key}
-                                    className={`rounded-2xl p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:scale-[1.03]
+                                    className={`rounded-2xl p-4 sm:p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:scale-[1.03]
                 ${idx % 2 === 0
                                             ? "bg-gradient-to-br from-indigo-50 to-indigo-100"
                                             : "bg-gradient-to-br from-emerald-50 to-emerald-100"
@@ -109,7 +109,7 @@ export default function PricesWidget() {
                                     </div>
 
                                     {/* Цена */}
-                                    <div className="mt-4 text-3xl font-extrabold text-gray-900 tracking-tight">
+                                    <div className="mt-3 text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
                                         {formatPrice(prices[it.key])}
                                     </div>
 

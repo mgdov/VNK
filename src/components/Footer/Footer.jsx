@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import HeaderLogo from "../../assets/Header-icons/Header-logo.svg"; // путь под свой проект
 import axios from "axios"; // опционально, можно убрать если не используешь форму
+import { Link } from 'react-router-dom';
 
 function Footer() {
     const [email, setEmail] = useState("");
@@ -31,13 +32,13 @@ function Footer() {
     };
 
     return (
-        <footer className="bg-gray-900 mt-[30px] text-gray-100 w-full">
-            <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-[80px] py-12 lg:py-16">
+        <footer className="bg-gray-900 mt-6 sm:mt-[30px] text-gray-100 w-full">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-8 sm:mt-[80px] py-10 lg:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Блок логотипа + описание */}
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
-                            <img src={HeaderLogo} alt="Логотип" className="w-[90px] h-auto" />
+                            <img src={HeaderLogo} alt="Логотип" className="w-20 h-auto sm:w-[90px]" />
                             <div>
                                 <h3 className="text-lg font-semibold">АЗС «Твой Бензин»</h3>
                                 <p className="text-sm text-gray-300">Качество топлива • Уютное кафе • 24/7</p>
@@ -84,24 +85,15 @@ function Footer() {
                     {/* Навигация */}
                     <div className="flex flex-col md:items-start">
                         <h4 className="text-lg font-semibold mb-4">Навигация</h4>
-                        <ul className="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-300">
                             <li>
-                                <a href="/" className="hover:text-white transition">Главная</a>
+                                <Link to="/" className="hover:text-white transition">Главная</Link>
                             </li>
                             <li>
-                                <a href="/about" className="hover:text-white transition">О нас</a>
+                                <Link to="/about" className="hover:text-white transition">О нас</Link>
                             </li>
                             <li>
-                                <a href="/services" className="hover:text-white transition">Услуги</a>
-                            </li>
-                            <li>
-                                <a href="/prices" className="hover:text-white transition">Цены</a>
-                            </li>
-                            <li>
-                                <a href="/news" className="hover:text-white transition">Новости</a>
-                            </li>
-                            <li>
-                                <a href="/contacts" className="hover:text-white transition">Контакты</a>
+                                <Link to="/review" className="hover:text-white transition">Отзывы</Link>
                             </li>
                         </ul>
 
@@ -157,12 +149,8 @@ function Footer() {
                     </div>
                 </div>
 
-                <div className="border-t border-gray-800 mt-10 pt-6 text-sm text-gray-500 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div>© {new Date().getFullYear()} АЗС «Твой Бензин». Все права защищены.</div>
-                    <div className="flex items-center gap-4">
-                        <a href="/privacy" className="hover:text-white">Политика конфиденциальности</a>
-                        <a href="/terms" className="hover:text-white">Условия использования</a>
-                    </div>
+                <div className="border-t border-gray-800 mt-10 pt-6 text-sm text-gray-500 text-center">
+                    © {new Date().getFullYear()} АЗС «Твой Бензин». Все права защищены.
                 </div>
             </div>
         </footer>

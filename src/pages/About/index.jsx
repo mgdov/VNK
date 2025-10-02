@@ -2,19 +2,19 @@ import React from 'react'
 
 export default function AboutPage() {
     return (
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-4 my-12">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-4 my-8 sm:my-12">
             {/* Hero */}
-            <section className="relative overflow-hidden rounded-3xl p-8 md:p-12 mb-8 bg-gradient-to-r from-slate-800 to-gray-900 text-white shadow-xl ring-1 ring-black/10">
+            <section className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-12 mb-8 bg-gradient-to-r from-slate-800 to-gray-900 text-white shadow-xl ring-1 ring-black/10">
                 {/* decorative blurred shapes */}
-                <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-indigo-600/30 blur-3xl transform -rotate-12 pointer-events-none" aria-hidden />
-                <div className="absolute -bottom-16 -right-12 w-56 h-56 rounded-full bg-purple-600/20 blur-2xl pointer-events-none" aria-hidden />
+                <div className="hidden sm:block absolute -top-16 -left-16 w-72 h-72 rounded-full bg-indigo-600/30 blur-3xl transform -rotate-12 pointer-events-none" aria-hidden />
+                <div className="hidden sm:block absolute -bottom-16 -right-12 w-56 h-56 rounded-full bg-purple-600/20 blur-2xl pointer-events-none" aria-hidden />
 
                 <div className="relative z-10 max-w-4xl mx-auto text-center">
                     <span className="inline-block bg-white/10 px-3 py-1 rounded-full text-sm font-medium mb-4">Официальная АЗС VNK</span>
 
-                    <h1 className="mb-4 text-[36px] md:text-[42px] leading-tight font-[700] tracking-tight">О VNK — ваша заправка</h1>
+                    <h1 className="mb-3 text-2xl sm:text-3xl md:text-4xl leading-tight font-bold tracking-tight">О VNK — ваша заправка</h1>
 
-                    <p className="text-[20px] font-[400] mb-6 leading-relaxed text-white/90">VNK — это современная автозаправочная сеть. Мы предлагаем качественный бензин, внимательное обслуживание и дружелюбный персонал, чтобы каждая заправка была быстрой и надёжной.</p>
+                    <p className="text-base sm:text-lg md:text-xl font-normal mb-5 leading-relaxed text-white/90">VNK — это современная автозаправочная сеть. Мы предлагаем качественный бензин, внимательное обслуживание и дружелюбный персонал, чтобы каждая заправка была быстрой и надёжной.</p>
 
                     {/* controls removed per request */}
                 </div>

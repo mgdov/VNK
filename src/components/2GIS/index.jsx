@@ -45,7 +45,8 @@ const Map2GIS = () => {
                 onError={handleError}
                 title="Карта 2GIS"
                 loading="lazy"
-                className="rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[70vh]"
+                style={{ height: 'auto' }}
             />
         </div>
     )

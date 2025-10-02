@@ -68,7 +68,7 @@ const SlideItem = ({ slide, index }) => (
         <motion.img
             src={slide.img}
             alt={slide.alt}
-            className="h-[650px] w-full object-cover rounded-2xl"
+            className="w-full object-cover rounded-2xl h-[220px] sm:h-[320px] md:h-[420px] lg:h-[520px] xl:h-[650px]"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
@@ -77,15 +77,15 @@ const SlideItem = ({ slide, index }) => (
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl" />
 
         <motion.div
-            className="absolute bottom-12 left-12 text-white max-w-[500px]"
+            className="absolute bottom-4 sm:bottom-8 md:bottom-12 left-4 sm:left-8 md:left-12 text-white max-w-[90%] sm:max-w-[500px]"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-            <h2 className="text-3xl md:text-5xl font-bold drop-shadow-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold drop-shadow-lg">
                 {slide.title}
             </h2>
-            <p className="mt-2 text-lg md:text-2xl opacity-90">
+            <p className="mt-2 text-base sm:text-lg md:text-2xl opacity-90">
                 {slide.desc}
             </p>
         </motion.div>

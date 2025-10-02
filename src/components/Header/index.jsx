@@ -33,7 +33,7 @@ function Header() {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-4 mt-[25px] flex items-center justify-between pt-4">
 
         <div className="Header-logo">
-          <Link to='/'><img className="w-[91px] h-[31px]" src={HeaderLogo} alt="Логотип" /></Link>
+          <Link to='/'><img className="w-20 h-auto sm:w-24" src={HeaderLogo} alt="Логотип" /></Link>
         </div>
 
         <nav className="hidden md:block">
