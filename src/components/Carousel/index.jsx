@@ -3,12 +3,12 @@ import { Carousel } from 'antd'
 import { motion } from 'framer-motion'
 
 // Import images
-import Fura from '../../assets/Content-carousel/fura.png'
-import Cafe from '../../assets/Content-carousel/cafe.png'
-import Zapravka from '../../assets/Content-carousel/zapravka.png'
-import BigZapravka from '../../assets/Content-carousel/bigzapravka.png'
-import VezdZapravka from '../../assets/Content-carousel/vezdzapravka.png'
-import VNK from '../../assets/Content-carousel/vnk.png'
+import Fura from '../../assets/Content-carousel/CG0A5543.jpg'
+import Cafe from '../../assets/Content-carousel/CG0A6406_resized.jpg'
+import Zapravka from '../../assets/Content-carousel/CG0A5830_resized.jpg'
+import BigZapravka from '../../assets/Content-carousel/CG0A6205_resized.jpg'
+import VezdZapravka from '../../assets/Content-carousel/CG0A5748_resized.jpg'
+import NewPhoto from '../../assets/Content-carousel/CG0A5924_resized.jpg'
 
 // Slide data
 const SLIDES = [
@@ -43,10 +43,8 @@ const SLIDES = [
         alt: 'Кафе на АЗС VNK'
     },
     {
-        img: VNK,
-        title: 'Красивый дизайн',
-        desc: 'В темное время суток вы отличите нас от других',
-        alt: 'Дизайн АЗС VNK в темное время'
+        img: NewPhoto,
+        alt: 'Новая фотография АЗС VNK'
     }
 ]
 
@@ -76,7 +74,8 @@ const SlideItem = ({ slide, index }) => (
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl" />
 
-        <motion.div
+        {/* Надписи временно убраны */}
+        {/* <motion.div
             className="absolute bottom-4 sm:bottom-8 md:bottom-12 left-4 sm:left-8 md:left-12 text-white max-w-[90%] sm:max-w-[500px]"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,7 +87,7 @@ const SlideItem = ({ slide, index }) => (
             <p className="mt-2 text-base sm:text-lg md:text-2xl opacity-90">
                 {slide.desc}
             </p>
-        </motion.div>
+        </motion.div> */}
     </div>
 )
 
@@ -103,7 +102,7 @@ const CarouselComp = () => {
             >
                 {slides.map((slide, index) => (
                     <SlideItem
-                        key={`${slide.title}-${index}`}
+                        key={`${slide.alt}-${index}`}
                         slide={slide}
                         index={index}
                     />

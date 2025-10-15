@@ -1,6 +1,6 @@
 import './assets/App.css'
 import { lazy, Suspense, useMemo } from 'react'
-import { Routes, Route, BrowserRouter, useLocation } from "react-router-dom"
+import { Routes, Route, HashRouter, useLocation } from "react-router-dom"
 import { AuthProvider } from './contexts/AuthContext'
 
 // Lazy load components for better performance
@@ -61,11 +61,11 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <AppContent />
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

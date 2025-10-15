@@ -52,15 +52,7 @@ function Footer() {
                         </p>
 
                         <div className="flex gap-3 mt-2">
-                            <a
-                                href="https://facebook.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-2 bg-gray-800 rounded-md hover:bg-gray-700 transition"
-                                aria-label="Facebook"
-                            >
-                                <Facebook className="w-5 h-5" />
-                            </a>
+                           
                             <a
                                 href="https://instagram.com"
                                 target="_blank"
@@ -70,15 +62,7 @@ function Footer() {
                             >
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a
-                                href="https://twitter.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-2 bg-gray-800 rounded-md hover:bg-gray-700 transition"
-                                aria-label="Twitter"
-                            >
-                                <Twitter className="w-5 h-5" />
-                            </a>
+                           
                         </div>
                     </div>
 
@@ -100,10 +84,10 @@ function Footer() {
                         <div className="mt-6 text-sm text-gray-400">
                             <div className="flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-gray-300" />
-                                <a href="mailto:info@example.com" className="hover:text-white">info@example.com</a>
+                                <a href="mailto:buh-vnk@yandex.ru" className="hover:text-white">buh-vnk@yandex.ru</a>
                             </div>
-                            <div className="mt-2">Тел.: <a href="tel:+1234567890" className="hover:text-white">+1 (234) 567-890</a></div>
-                            <div className="mt-1 text-gray-500 text-xs">Адрес: г. Пример, ул. Главная, 10</div>
+                            <div className="mt-2">Тел.: <a href="tel:+79285509668" className="hover:text-white">+7 (928) 550-96-68</a></div>
+                            <div className="mt-1 text-gray-500 text-xs">Адрес: Г.Махачкала, ул. Ирчи-казака 10д</div>
                         </div>
                     </div>
 
@@ -150,7 +134,7 @@ function Footer() {
                 </div>
 
                 <div className="border-t border-gray-800 mt-10 pt-6 text-sm text-gray-500 text-center">
-                    © {new Date().getFullYear()} АЗС «Твой Бензин». Все права защищены.
+                    © {new Date().getFullYear()} АЗС «VNK». Все права защищены.
                 </div>
             </div>
         </footer>
