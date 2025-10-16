@@ -84,15 +84,15 @@ const SlideItem = ({ slide, index }) => (
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl" />
 
         <motion.div
-            className="absolute bottom-2 xs:bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-12 xl:bottom-16 left-2 xs:left-4 sm:left-6 md:left-8 lg:left-12 xl:left-16 text-white max-w-[95%] xs:max-w-[90%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] xl:max-w-[40%]"
+            className="absolute bottom-[26px] xs:bottom-8 sm:bottom-8 md:bottom-12 lg:bottom-12 xl:bottom-16 left-2 xs:left-4 sm:left-6 md:left-8 lg:left-12 xl:left-16 text-white max-w-[95%] xs:max-w-[90%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] xl:max-w-[40%]"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-            <h2 className="text-sm xs:text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold drop-shadow-lg leading-tight">
+            <h2 className="text-sm xs:text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold drop-shadow-lg mb-0.5 xs:mb-1">
                 {slide.title}
             </h2>
-            <p className="mt-1 xs:mt-2 text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed">
+            <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl opacity-90">
                 {slide.desc}
             </p>
         </motion.div>
