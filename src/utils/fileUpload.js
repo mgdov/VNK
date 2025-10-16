@@ -1,281 +1,258 @@
 // File upload utilities
-const UPLOAD_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_UPLOAD_URL)
-    ? import.meta.env.VITE_UPLOAD_URL
-    : (typeof window !== 'undefined' ? `${window.location.origin}/upload` : 'http://localhost:3001/upload');
+// NOTE: We don't use a custom upload server for production. The project uses MockAPI
+// to store news items. To ensure images persist without introducing a server,
+// we convert image files to base64 data URLs and store them in the MockAPI record.
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB (max input file size)
+const MAX_BASE64_PAYLOAD = 200 * 1024 // target max size for stored base64 (200KB) to be safe for MockAPI
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-
-// When we cannot upload to a server (e.g., production static hosting),
-// we inline images as data URLs. To avoid HTTP 413 on MockAPI, keep
-// inline images reasonably small.
-const MAX_INLINE_IMAGE_BYTES = 250 * 1024; // ~250KB target for inlined base64
-const DEFAULT_MAX_DIMENSION = 1280; // Resize longest side to this value
+// Resize/compress settings
+const DEFAULT_MAX_WIDTH = 800
+const DEFAULT_MAX_HEIGHT = 800
+const MIN_QUALITY = 0.45
 
 // Validate file before upload
 const validateFile = (file) => {
     if (!file) {
-        throw new Error('Файл не выбран');
+        throw new Error('Файл не выбран')
     }
 
     if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`Размер файла превышает ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+        throw new Error(`Размер файла превышает ${MAX_FILE_SIZE / 1024 / 1024}MB`)
     }
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        throw new Error('Неподдерживаемый тип файла. Разрешены: JPEG, PNG, GIF, WebP, SVG');
+        throw new Error('Неподдерживаемый тип файла. Разрешены: JPEG, PNG, GIF, WebP, SVG')
     }
 
-    return true;
-};
+    return true
+}
 
-// Read a Blob/File to data URL
-const blobToDataURL = (blob) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-});
-
-// Read a File to an HTMLImageElement
-const fileToImage = (file) => new Promise((resolve, reject) => {
-    try {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-            img.src = reader.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    } catch (e) {
-        reject(e);
-    }
-});
-
-// Draw an image to canvas with max dimensions and return a Blob
-const drawToCanvas = async (img, { maxDimension = DEFAULT_MAX_DIMENSION, mimeType = 'image/jpeg', quality = 0.8 } = {}) => {
-    const { naturalWidth: w, naturalHeight: h } = img;
-    let targetW = w;
-    let targetH = h;
-
-    // Scale preserving aspect ratio
-    if (Math.max(w, h) > maxDimension) {
-        if (w >= h) {
-            targetW = maxDimension;
-            targetH = Math.round((h / w) * maxDimension);
-        } else {
-            targetH = maxDimension;
-            targetW = Math.round((w / h) * maxDimension);
-        }
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = targetW;
-    canvas.height = targetH;
-
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, targetW, targetH);
-
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality));
-    if (!blob) throw new Error('Не удалось сжать изображение');
-    return blob;
-};
-
-// Compress/resize an image File to fit under the target size, iteratively reducing quality and dimensions.
-const compressImageFile = async (file, { targetBytes = MAX_INLINE_IMAGE_BYTES } = {}) => {
-    // Skip compression for SVGs; they're text and usually small.
-    if (file.type === 'image/svg+xml') {
-        return { blob: file, dataUrl: await blobToDataURL(file), convertedName: file.name };
-    }
-
-    // Load image
-    const img = await fileToImage(file);
-
-    // Choose output format. Prefer JPEG for better compression unless the original is webp.
-    const preferredMime = file.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
-
-    const steps = [
-        { maxDimension: DEFAULT_MAX_DIMENSION, quality: 0.8 },
-        { maxDimension: DEFAULT_MAX_DIMENSION, quality: 0.7 },
-        { maxDimension: DEFAULT_MAX_DIMENSION, quality: 0.6 },
-        { maxDimension: 1024, quality: 0.7 },
-        { maxDimension: 1024, quality: 0.6 },
-        { maxDimension: 800, quality: 0.65 },
-        { maxDimension: 720, quality: 0.6 },
-        { maxDimension: 640, quality: 0.6 },
-        { maxDimension: 560, quality: 0.6 },
-    ];
-
-    let lastBlob = null;
-    for (const s of steps) {
-        const blob = await drawToCanvas(img, { maxDimension: s.maxDimension, mimeType: preferredMime, quality: s.quality });
-        lastBlob = blob;
-        if (blob.size <= targetBytes) {
-            const dataUrl = await blobToDataURL(blob);
-            const convertedName = (file.name || 'image').replace(/\.(jpe?g|png|gif|webp)$/i, '') + (preferredMime === 'image/webp' ? '.webp' : '.jpg');
-            return { blob, dataUrl, convertedName };
-        }
-    }
-
-    // If still too big, return the smallest we could make
-    const dataUrl = await blobToDataURL(lastBlob);
-    const convertedName = (file.name || 'image').replace(/\.(jpe?g|png|gif|webp)$/i, '') + (preferredMime === 'image/webp' ? '.webp' : '.jpg');
-    return { blob: lastBlob, dataUrl, convertedName };
-};
-
-// Upload file to server
+// Instead of uploading to an external server, convert file to data URL.
+// This allows storing the image directly inside the MockAPI JSON record so
+// it persists across reloads and deployments without a dedicated file server.
 export const uploadFile = async (file) => {
-    try {
-        validateFile(file);
+    validateFile(file)
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'image');
+    // If SVG - keep as data URL via FileReader (SVG is text-based)
+    if (file.type === 'image/svg+xml') {
+        const toDataUrl = (f) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(f);
+        });
+        try {
+            const dataUrl = await toDataUrl(file)
+            return { src: dataUrl, title: file.name, rawFile: file }
+        } catch (e) {
+            console.error('SVG to data URL failed:', e)
+            throw new Error('Не удалось обработать SVG-файл')
+        }
+    }
+    // If SVG - sanitize and keep as data URL (SVG is text-based)
+    if (file.type === 'image/svg+xml') {
+        // DOMPurify is safe in browser environments (window exists)
+        try {
+            const text = await file.text();
+            // Use DOMPurify if available
+            let clean = text;
+            if (typeof window !== 'undefined') {
+                // Lazy load DOMPurify from global require if available
+                try {
+                    // eslint-disable-next-line no-undef
+                    const DOMPurify = (await import('dompurify')).default;
+                    clean = DOMPurify.sanitize(text, { USE_PROFILES: { svg: true } });
+                } catch (e) {
+                    console.warn('DOMPurify unavailable, proceeding without SVG sanitization:', e);
+                }
+            }
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            // Use TextEncoder to properly encode UTF-8 strings to base64
+            const uint8Array = new TextEncoder().encode(clean);
+            let binary = '';
+            for (let i = 0; i < uint8Array.length; i++) {
+                binary += String.fromCharCode(uint8Array[i]);
+            }
+            const svgDataUrl = `data:image/svg+xml;base64,${btoa(binary)}`;
+            return { src: svgDataUrl, title: file.name };
+        } catch (e) {
+            console.error('SVG processing failed:', e)
+            throw new Error('Не удалось обработать SVG-файл')
+        }
+    }
 
-        const response = await fetch(UPLOAD_URL, {
-            method: 'POST',
-            body: formData,
-            signal: controller.signal
+    // Helper: convert Blob to dataURL
+    const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+
+    // Helper: create Image element from File using object URL
+    const loadImage = (fileOrBlob) => new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(fileOrBlob);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve(img);
+        };
+        img.onerror = (e) => {
+            URL.revokeObjectURL(url);
+            reject(e);
+        };
+        img.src = url;
+    });
+
+    // Helper: resize and compress via canvas to desired quality/size (create thumbnail)
+    const createThumbnailBlob = async (file, options = {}) => {
+        const maxWidth = options.maxWidth || DEFAULT_MAX_WIDTH;
+        const maxHeight = options.maxHeight || DEFAULT_MAX_HEIGHT;
+        let quality = options.quality ?? 0.85;
+
+        const img = await loadImage(file);
+        const { width, height } = img;
+        let scale = Math.min(1, maxWidth / width, maxHeight / height);
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // function to produce blob at given dimensions and quality
+        const produceBlob = async (w, h, q) => new Promise((res) => {
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob(res, 'image/webp', q);
         });
 
-        clearTimeout(timeoutId);
+        // Start with scaled dimensions
+        let targetW = Math.max(1, Math.round(width * scale));
+        let targetH = Math.max(1, Math.round(height * scale));
 
-        if (!response.ok) {
-            throw new Error(`Ошибка загрузки файла: ${response.status} ${response.statusText}`);
+        // Try decreasing quality first
+        for (let q = quality; q >= MIN_QUALITY; q -= 0.1) {
+            const blob = await produceBlob(targetW, targetH, q);
+            if (blob && blob.size <= MAX_BASE64_PAYLOAD) return blob;
         }
 
-        const result = await response.json();
+        // If still too large, progressively downscale and try again
+        let currentW = targetW;
+        let currentH = targetH;
+        for (let attempt = 0; attempt < 6; attempt++) {
+            currentW = Math.max(1, Math.round(currentW * 0.8));
+            currentH = Math.max(1, Math.round(currentH * 0.8));
+            for (let q = 0.8; q >= MIN_QUALITY; q -= 0.1) {
+                const blob = await produceBlob(currentW, currentH, q);
+                if (blob && blob.size <= MAX_BASE64_PAYLOAD) return blob;
+            }
+        }
 
-        return {
-            src: result.url || result.fileUrl || result.path,
-            title: file.name,
-            rawFile: file
-        };
+        // last resort - smallest possible
+        return await produceBlob(Math.max(1, Math.round(width * 0.1)), Math.max(1, Math.round(height * 0.1)), MIN_QUALITY);
+    };
+
+    try {
+        // Create aggressive thumbnail blob (webp)
+        const thumbBlob = await createThumbnailBlob(file, { maxWidth: DEFAULT_MAX_WIDTH, maxHeight: DEFAULT_MAX_HEIGHT, quality: 0.85 });
+        const dataUrl = await blobToDataUrl(thumbBlob);
+        if (!dataUrl || dataUrl.length === 0) throw new Error('Не удалось получить data URL');
+        if (dataUrl.length > MAX_BASE64_PAYLOAD * 1.37) {
+            throw new Error('Сжатое изображение всё ещё слишком велико для хранения. Попробуйте выбрать меньшую картинку.');
+        }
+        return { src: dataUrl, title: file.name };
     } catch (error) {
-        if (error.name === 'AbortError') {
-            throw new Error('Превышено время ожидания загрузки файла');
-        }
-        console.error('Ошибка загрузки файла:', error);
-        throw error;
+        console.error('Ошибка преобразования/сжатия файла в data URL:', error);
+        throw new Error(error.message || 'Не удалось подготовить файл для сохранения');
     }
-};
+}
 
 // Process image data in form
 export const processImageData = async (data) => {
-    const processedData = { ...data };
+    const processedData = { ...data }
 
-    // In production environments without a dedicated upload server, prefer inlining as data URLs
-    const shouldUseDataUrlOnly = (typeof window !== 'undefined')
-        && !(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_UPLOAD_URL)
-        && window.location.hostname !== 'localhost'
-        && window.location.hostname !== '127.0.0.1';
+    // Support different ImageInput shapes used by react-admin:
+    // - avatar: { rawFile, ... }
+    // - avatar: [ { rawFile, ... } ]
+    try {
+        if (Array.isArray(data.avatar) && data.avatar.length > 0 && data.avatar[0]?.rawFile) {
+            const uploadedImage = await uploadFile(data.avatar[0].rawFile)
+            processedData.avatar = uploadedImage
+        } else if (data.avatar?.rawFile) {
+            const uploadedImage = await uploadFile(data.avatar.rawFile)
+            processedData.avatar = uploadedImage
+        }
+    } catch (error) {
+        console.error('Ошибка обработки изображения поста:', error)
+        // Keep original data on error
+    }
 
-    // Helper to get raw file from possible shapes
-    const getRaw = (val) => {
-        if (!val) return null;
-        if (Array.isArray(val) && val.length > 0) return val[0]?.rawFile || null;
-        return val?.rawFile || null;
-    };
+    // If upload failed (or upload server unavailable) but we have a rawFile,
+    // create a base64 data URL fallback so the frontend can display the image.
+    const toDataUrl = (file) => new Promise((resolve, reject) => {
+        try {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        } catch (e) {
+            reject(e);
+        }
+    });
 
     try {
-        const raw = getRaw(data.avatar);
-        if (raw) {
-            // If we can upload to a server, prefer that path
-            if (!shouldUseDataUrlOnly) {
+        if (!processedData.avatar || (processedData.avatar && !processedData.avatar.src)) {
+            // handle array form
+            const raw = Array.isArray(data.avatar) && data.avatar.length > 0 ? data.avatar[0]?.rawFile : data.avatar?.rawFile;
+            if (raw) {
                 try {
-                    // Try to compress before upload to reduce bandwidth
-                    let toUploadFile = raw;
-                    if (raw.type !== 'image/svg+xml' && raw.size > MAX_INLINE_IMAGE_BYTES) {
-                        const { blob, convertedName } = await compressImageFile(raw, { targetBytes: MAX_INLINE_IMAGE_BYTES * 2 });
-                        toUploadFile = new File([blob], convertedName || raw.name || 'image', { type: blob.type });
-                    }
-                    const uploadedImage = await uploadFile(toUploadFile);
-                    processedData.avatar = uploadedImage;
+                    const dataUrl = await toDataUrl(raw);
+                    processedData.avatar = processedData.avatar && processedData.avatar.title ? { src: dataUrl, title: processedData.avatar.title } : { src: dataUrl, title: raw.name || 'image' };
                 } catch (e) {
-                    console.error('��шибка загрузки изображения поста, будет использован data URL:', e);
-                    // Fall through to data URL path
-                }
-            }
-
-            // If upload not possible or failed, create a compressed data URL fallback
-            if (!processedData.avatar || !processedData.avatar.src) {
-                try {
-                    const { blob, dataUrl, convertedName } = await compressImageFile(raw, { targetBytes: MAX_INLINE_IMAGE_BYTES });
-
-                    if (blob.size > MAX_INLINE_IMAGE_BYTES) {
-                        // Still too big: warn with a clear error to avoid 413 on MockAPI
-                        throw new Error('Изображение слишком большое для сохранения. Уменьшите размер (до ~250KB) или запустите локальный сервер загрузок и установите VITE_UPLOAD_URL.');
-                    }
-
-                    processedData.avatar = {
-                        src: dataUrl,
-                        title: convertedName || raw.name || 'image'
-                    };
-                } catch (e) {
-                    console.warn('Не удалось создать сжатый data URL из файла:', e);
+                    // ignore
+                    console.warn('Не удалось создать data URL из файла:', e);
                 }
             }
         }
-    } catch (error) {
-        console.warn('Fallback image processing failed:', error);
+    } catch (e) {
+        console.warn('Fallback image processing failed:', e);
     }
 
-    return processedData;
-};
+    return processedData
+}
 
 // Get image URL from various data formats
 export const getImageUrl = (imageData) => {
-    if (!imageData) return null;
+    if (!imageData) return null
 
-    const normalizeUrl = (u) => {
-        if (!u) return null;
-        // Keep absolute and data/blob URLs as-is
-        return u;
-    };
-
-    // If it's a JSON string (legacy storage), try to parse and extract URL
+    // String URL
     if (typeof imageData === 'string') {
-        const str = imageData.trim();
-        try {
-            if ((str.startsWith('{') && str.endsWith('}')) || (str.startsWith('[') && str.endsWith(']'))) {
-                const parsed = JSON.parse(str);
-                return getImageUrl(parsed);
-            }
-        } catch {
-            // fall through
-        }
-        return normalizeUrl(str);
+        return imageData
     }
 
-    // Common object shapes
-    if (imageData?.src) return normalizeUrl(imageData.src);
-    if (imageData?.url) return normalizeUrl(imageData.url);
-    if (imageData?.fileUrl) return normalizeUrl(imageData.fileUrl);
-    if (imageData?.path) return normalizeUrl(imageData.path);
-    if (imageData?.imageUrl) return normalizeUrl(imageData.imageUrl);
-
-    // Blob/File
-    if (typeof Blob !== 'undefined' && imageData instanceof Blob) {
-        return URL.createObjectURL(imageData);
+    // Object with src property
+    if (imageData?.src) {
+        return imageData.src
     }
 
-    return null;
-};
+    // Blob URL
+    if (imageData instanceof Blob) {
+        return URL.createObjectURL(imageData)
+    }
+
+    return null
+}
 
 // Create blob URL for file preview
 export const createBlobUrl = (file) => {
-    if (!file) return null;
-    return URL.createObjectURL(file);
-};
+    if (!file) return null
+    return URL.createObjectURL(file)
+}
 
 // Revoke blob URL to free memory
 export const revokeBlobUrl = (url) => {
     if (url && url.startsWith('blob:')) {
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url)
     }
-};
+}

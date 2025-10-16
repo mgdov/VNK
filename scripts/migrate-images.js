@@ -1,174 +1,130 @@
-/*
- Migrate existing items' avatar to production-friendly format.
- - Detects avatars pointing to http://localhost:3001/uploads/... or /uploads/...
- - Downloads from your local upload server and converts small images to base64 data URLs
- - Updates MockAPI records so images render on both localhost and production
+#!/usr/bin/env node
+// Migration script: find items with avatar.rawFile.path and replace avatar.src with a data URL
+// Usage: node scripts/migrate-images.js
 
- Usage:
- 1) Ensure the local upload server is running (and that it has the images present):
-    node server/upload.js
- 2) Run this script:
-    node scripts/migrate-images.js
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
- Notes:
- - To avoid 413 on MockAPI, only images <= ~260KB are converted to data URLs.
- - Larger images are skipped with a warning; re-upload them via Admin with the new uploader
-   (or resize them) so they are compressed and saved as data URLs or uploaded to a public host.
-*/
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const WORKSPACE_ROOT = path.resolve(__dirname, '..');
 const API_URL = 'https://68d0487dec1a5ff33826f151.mockapi.io/items';
-const LOCAL_UPLOAD_BASE = 'http://localhost:3001';
-const MAX_INLINE_BYTES = 260 * 1024; // ~260KB
 
-// Basic delay helper
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const mimeMap = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.bmp': 'image/bmp',
+  '.tiff': 'image/tiff'
+};
 
-function extractAvatarUrl(avatar) {
-  if (!avatar) return null;
-  // JSON string -> parse
-  if (typeof avatar === 'string') {
-    const str = avatar.trim();
-    try {
-      if ((str.startsWith('{') && str.endsWith('}')) || (str.startsWith('[') && str.endsWith(']'))) {
-        const parsed = JSON.parse(str);
-        return extractAvatarUrl(parsed);
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Fetch ${url} failed: ${res.status}`);
+  return res.json();
+}
+
+async function findFileByName(root, name) {
+  // simple recursive search but with pruning
+  const entries = await fs.readdir(root, { withFileTypes: true });
+  for (const e of entries) {
+    const p = path.join(root, e.name);
+    if (e.isFile() && e.name === name) return p;
+    if (e.isDirectory() && e.name !== 'node_modules' && e.name !== '.git') {
+      try {
+        const found = await findFileByName(p, name);
+        if (found) return found;
+      } catch (e) {
+        // ignore
       }
-    } catch (_) {
-      // keep as-is
     }
-    return str;
   }
-  // object shapes
-  if (avatar.src) return avatar.src;
-  if (avatar.url) return avatar.url;
-  if (avatar.fileUrl) return avatar.fileUrl;
-  if (avatar.path) return avatar.path;
-  if (avatar.imageUrl) return avatar.imageUrl;
   return null;
 }
 
-function needsMigration(url) {
-  if (!url) return false;
-  if (url.startsWith('data:')) return false;
-  if (url.startsWith('blob:')) return false; // transient
-  if (url.startsWith('http://localhost:3001')) return true;
-  if (url.startsWith('/uploads/')) return true;
-  return false;
-}
-
-function guessMimeFromUrl(url) {
-  const u = url.toLowerCase();
-  if (u.endsWith('.jpg') || u.endsWith('.jpeg')) return 'image/jpeg';
-  if (u.endsWith('.png')) return 'image/png';
-  if (u.endsWith('.webp')) return 'image/webp';
-  if (u.endsWith('.gif')) return 'image/gif';
-  if (u.endsWith('.svg')) return 'image/svg+xml';
-  return 'application/octet-stream';
-}
-
-function getFilename(url) {
-  try {
-    const pathname = url.includes('://') ? new URL(url).pathname : url;
-    const parts = pathname.split('/');
-    return parts[parts.length - 1] || 'image';
-  } catch {
-    return 'image';
-  }
-}
-
-async function fetchBuffer(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
-  const ab = await res.arrayBuffer();
-  return Buffer.from(ab);
+async function toDataUrl(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  const mime = mimeMap[ext] || 'application/octet-stream';
+  const buf = await fs.readFile(filePath);
+  const b64 = buf.toString('base64');
+  return `data:${mime};base64,${b64}`;
 }
 
 async function run() {
-  console.log('Fetching items from MockAPI...');
-  const res = await fetch(API_URL);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch items: ${res.status} ${res.statusText}`);
-  }
-  const items = await res.json();
-  console.log(`Total items: ${items.length}`);
+  console.log('Fetching items from API...');
+  const items = await fetchJson(API_URL);
+  const blobItems = items.filter(item => (item?.avatar?.src && String(item.avatar.src).startsWith('blob:')) || (item?.avatar?.rawFile && item.avatar.rawFile.path));
+  console.log(`Found ${blobItems.length} items with blob/rawFile references`);
 
-  let migrated = 0;
-  let skipped = 0;
-  let unchanged = 0;
+  for (const item of blobItems) {
+    const id = item.id;
+    console.log('\nProcessing id=' + id + ' title=' + (item.title || ''));
+    // try to extract filename from rawFile.path or avatar.src
+    let filename = null;
+    if (item.avatar?.rawFile?.path) {
+      filename = path.basename(String(item.avatar.rawFile.path));
+    }
+    // if not, try to parse avatar.src last path segment
+    if (!filename && item.avatar?.src) {
+      try {
+        const url = new URL(String(item.avatar.src));
+        filename = path.basename(url.pathname) || null;
+      } catch (e) {
+        // ignore
+      }
+    }
 
-  for (const item of items) {
-    const current = extractAvatarUrl(item.avatar);
-    if (!needsMigration(current)) {
-      unchanged++;
+    if (!filename) {
+      console.log('  No filename to search for. Skipping.');
       continue;
     }
 
-    // Resolve local URL
-    let localUrl = current;
-    if (current.startsWith('/uploads/')) {
-      localUrl = LOCAL_UPLOAD_BASE + current;
+    console.log('  Looking for file named:', filename);
+    const found = await findFileByName(WORKSPACE_ROOT, filename);
+    if (!found) {
+      console.log('  File not found in workspace. Skipping.');
+      continue;
     }
 
-    const filename = getFilename(localUrl);
-
+    console.log('  Found file:', found, ' — copying to public/uploads and updating record...');
     try {
-      const buf = await fetchBuffer(localUrl);
-      if (buf.byteLength > MAX_INLINE_BYTES) {
-        console.warn(`Skipping item ${item.id}: ${filename} is too large (${Math.round(buf.byteLength/1024)}KB) for inline storage`);
-        skipped++;
-        continue;
-      }
+      const uploadsDir = path.join(WORKSPACE_ROOT, 'public', 'uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
 
-      const mime = guessMimeFromUrl(localUrl);
-      const base64 = buf.toString('base64');
-      const dataUrl = `data:${mime};base64,${base64}`;
+      // create a stable filename to avoid collisions: use id + original ext
+      const ext = path.extname(found) || path.extname(filename) || '.png';
+      const targetName = `item-${id}${ext}`;
+      const targetPath = path.join(uploadsDir, targetName);
 
-      const payload = {
-        avatar: { src: dataUrl, title: filename },
-        updatedAt: new Date().toISOString(),
-      };
+      // copy file into public/uploads
+      await fs.copyFile(found, targetPath);
 
-      const putRes = await fetch(`${API_URL}/${item.id}`, {
+      // Public path accessible from the frontend
+      const publicPath = `/uploads/${targetName}`;
+
+      const smallPayload = { avatar: { src: publicPath, title: filename } };
+      const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(smallPayload)
       });
-      if (!putRes.ok) {
-        throw new Error(`PUT failed: ${putRes.status} ${putRes.statusText}`);
+      if (!res.ok) {
+        console.error('  Failed to update item:', res.status, await res.text());
+      } else {
+        console.log('  Successfully updated item', id, '->', publicPath);
       }
-
-      migrated++;
-      console.log(`Migrated item ${item.id}: ${filename} -> inline data URL`);
-
-      // gentle pacing to avoid rate limits
-      await sleep(200);
     } catch (e) {
-      console.error(`Error migrating item ${item.id} (${filename}):`, e.message);
-      skipped++;
+      console.error('  Error processing file:', e.message);
     }
   }
 
-  console.log('Done. Summary:');
-  console.log(`  Migrated: ${migrated}`);
-  console.log(`  Skipped:  ${skipped}`);
-  console.log(`  Unchanged:${unchanged}`);
+  console.log('\nDone');
 }
 
-// Node 18+ provides global fetch; if not present, try to polyfill via node-fetch dynamically
-(async () => {
-  if (typeof fetch === 'undefined') {
-    try {
-      const { default: nodeFetch } = await import('node-fetch');
-      global.fetch = nodeFetch;
-    } catch (e) {
-      console.error('Fetch is not available and node-fetch is not installed. Please use Node 18+ or install node-fetch.');
-      process.exit(1);
-    }
-  }
-  try {
-    await run();
-  } catch (e) {
-    console.error('Migration failed:', e);
-    process.exit(1);
-  }
-})();
+run().catch(err => {
+  console.error('Migration failed:', err);
+  process.exit(1);
+});

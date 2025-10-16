@@ -34,22 +34,20 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import { useState } from 'react';
-import { getImageUrl } from '../../utils/fileUpload';
 
 // Компонент для отображения изображения поста с fallback
 const ImageField = ({ record, source }) => {
     const image = record?.[source];
     const name = record?.name || 'Пользователь';
-    const imageUrl = getImageUrl(image) || (typeof image === 'string' ? image : image?.src) || '';
 
     return (
         <Box display="flex" alignItems="center" gap={1}>
             <Avatar
-                src={imageUrl}
+                src={image}
                 alt={name}
                 sx={{ width: 32, height: 32 }}
             >
-                {name?.charAt(0).toUpperCase?.() || 'N'}
+                {name.charAt(0).toUpperCase()}
             </Avatar>
             <Typography variant="body2" noWrap>
                 {name}

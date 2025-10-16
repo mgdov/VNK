@@ -9,7 +9,6 @@ const AdminApp = lazy(() => import('./pages/Admin/AdminApp'))
 const Review = lazy(() => import('./pages/Reviews'))
 const Header = lazy(() => import('./components/Header'))
 const Footer = lazy(() => import('./components/Footer/Footer'))
-const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Loading component
 const LoadingSpinner = () => (
@@ -25,8 +24,7 @@ const ROUTES = [
   { path: '/', element: <Home /> },
   { path: '/about', element: <About /> },
   { path: '/review', element: <Review /> },
-  { path: '/admin/*', element: <AdminApp /> },
-  { path: '*', element: <NotFound /> }
+  { path: '/admin/*', element: <AdminApp /> }
 ]
 
 function AppContent() {

@@ -3,50 +3,57 @@ import { Carousel } from 'antd'
 import { motion } from 'framer-motion'
 
 // Import images
-import Fura from '../../assets/Content-carousel/fura.png'
-import Cafe from '../../assets/Content-carousel/cafe.png'
-import Zapravka from '../../assets/Content-carousel/zapravka.png'
-import BigZapravka from '../../assets/Content-carousel/bigzapravka.png'
-import VezdZapravka from '../../assets/Content-carousel/vezdzapravka.png'
-import VNK from '../../assets/Content-carousel/vnk.png'
+import Fura from '../../assets/Content-carousel/CG0A5543.jpg'
+import Cafe from '../../assets/Content-carousel/коркмаскала.jpg'
+import Zapravka from '../../assets/Content-carousel/CG0A5830_resized.jpg'
+import BigZapravka from '../../assets/Content-carousel/CG0A6205_resized.jpg'
+import VezdZapravka from '../../assets/Content-carousel/CG0A5748_resized.jpg'
+import NewPhoto from '../../assets/Content-carousel/Манас.jpg'
+import WhatsAppPhoto from '../../assets/Content-carousel/WhatsApp Image 2025-10-16 at 18.58.33 (1).jpeg'
 
 // Slide data
 const SLIDES = [
     {
         img: Fura,
         title: 'Грузовые заправки',
-        desc: 'Удобно и быстро для дальнобойщиков',
+        desc: 'Быстрая и качественная заправка для дальнобойщиков 24/7',
         alt: 'Грузовая заправка VNK'
     },
     {
         img: VezdZapravka,
-        title: 'Лёгкий въезд',
-        desc: 'Просторная территория для всех видов транспорта',
+        title: 'Удобный подъезд',
+        desc: 'Просторная территория для комфортного обслуживания',
         alt: 'Въезд на АЗС VNK'
     },
     {
         img: Zapravka,
         title: 'Современное оборудование',
-        desc: 'Высокое качество топлива',
+        desc: 'Высокотехнологичное оборудование для качественного топлива',
         alt: 'Современное оборудование АЗС'
     },
     {
         img: BigZapravka,
-        title: 'Крупная АЗС',
-        desc: 'Всегда есть место для вашего авто',
+        title: 'Просторная АЗС',
+        desc: 'Множество колонок для быстрого обслуживания всех клиентов',
         alt: 'Крупная АЗС VNK'
     },
     {
         img: Cafe,
         title: 'Уютное кафе',
-        desc: 'Горячий кофе и свежие блюда',
+        desc: 'Ароматный кофе и свежие блюда в комфортной обстановке',
         alt: 'Кафе на АЗС VNK'
     },
     {
-        img: VNK,
-        title: 'Красивый дизайн',
-        desc: 'В темное время суток вы отличите нас от других',
-        alt: 'Дизайн АЗС VNK в темное время'
+        img: NewPhoto,
+        title: 'Ночной дизайн',
+        desc: 'Красивая подсветка делает нашу АЗС узнаваемой даже ночью',
+        alt: 'Ночная подсветка АЗС VNK'
+    },
+    {
+        img: WhatsAppPhoto,
+        title: 'Комфорт и удобство',
+        desc: 'Создаем все условия для приятного отдыха во время поездки',
+        alt: 'Комфортная обстановка АЗС VNK'
     }
 ]
 
@@ -77,15 +84,15 @@ const SlideItem = ({ slide, index }) => (
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl" />
 
         <motion.div
-            className="absolute bottom-4 sm:bottom-8 md:bottom-12 left-4 sm:left-8 md:left-12 text-white max-w-[90%] sm:max-w-[500px]"
+            className="absolute bottom-2 xs:bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-12 xl:bottom-16 left-2 xs:left-4 sm:left-6 md:left-8 lg:left-12 xl:left-16 text-white max-w-[95%] xs:max-w-[90%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] xl:max-w-[40%]"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold drop-shadow-lg">
+            <h2 className="text-sm xs:text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold drop-shadow-lg leading-tight">
                 {slide.title}
             </h2>
-            <p className="mt-2 text-base sm:text-lg md:text-2xl opacity-90">
+            <p className="mt-1 xs:mt-2 text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed">
                 {slide.desc}
             </p>
         </motion.div>
@@ -103,7 +110,7 @@ const CarouselComp = () => {
             >
                 {slides.map((slide, index) => (
                     <SlideItem
-                        key={`${slide.title}-${index}`}
+                        key={`${slide.alt}-${index}`}
                         slide={slide}
                         index={index}
                     />
